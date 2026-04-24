@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Informe de estrategia de carrera | be-long run</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: system-ui, sans-serif;
       margin: 0;
       background: #f4f1ea;
       color: #1f241f;
@@ -18,14 +16,14 @@
     header {
       background: #202820;
       color: white;
-      padding: 42px 20px;
+      padding: 40px 20px;
       text-align: center;
     }
 
     main {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 28px 18px;
+      max-width: 1150px;
+      margin: auto;
+      padding: 24px 16px;
     }
 
     .card {
@@ -33,19 +31,19 @@
       border-radius: 18px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
     }
 
     label {
       display: block;
       font-weight: 700;
       margin-top: 16px;
-      margin-bottom: 6px;
     }
 
     input, button {
       width: 100%;
       padding: 12px;
+      margin-top: 6px;
       border-radius: 10px;
       border: 1px solid #bbb;
       font-size: 16px;
@@ -53,16 +51,12 @@
     }
 
     button {
-      margin-top: 24px;
       background: #202820;
       color: white;
       font-weight: 800;
-      cursor: pointer;
       border: none;
-    }
-
-    button:hover {
-      background: #3b4b3a;
+      cursor: pointer;
+      margin-top: 24px;
     }
 
     .time-grid {
@@ -85,7 +79,7 @@
 
     .metric strong {
       display: block;
-      font-size: 26px;
+      font-size: 25px;
       margin-top: 6px;
     }
 
@@ -96,7 +90,7 @@
     }
 
     th, td {
-      padding: 11px;
+      padding: 10px;
       border-bottom: 1px solid #ddd;
       text-align: left;
     }
@@ -106,12 +100,12 @@
     }
 
     .tag {
-      display: inline-block;
-      padding: 4px 10px;
+      color: white;
+      padding: 4px 9px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 700;
-      color: white;
+      display: inline-block;
     }
 
     .warning {
@@ -122,48 +116,55 @@
       margin-top: 18px;
     }
 
-    .small {
-      font-size: 14px;
-      color: #666;
+    .error {
+      background: #ffe1e1;
+      border-left: 5px solid #b00020;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
     }
 
-    canvas {
-      margin-top: 18px;
+    svg {
+      width: 100%;
+      height: 360px;
+      background: #f8f8f5;
+      border-radius: 14px;
+      margin-top: 16px;
     }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>Informe de estrategia de carrera</h1>
-    <p>Análisis del recorrido, demandas principales y planificación global de preparación.</p>
-  </header>
+<header>
+  <h1>Informe de estrategia de carrera</h1>
+  <p>Análisis del recorrido, demandas principales y planificación global.</p>
+</header>
 
-  <main>
-    <section class="card">
-      <h2>Datos de entrada</h2>
+<main>
+  <section class="card">
+    <h2>Datos de entrada</h2>
 
-      <label for="gpxFile">Archivo GPX</label>
-      <input type="file" id="gpxFile" accept=".gpx" />
+    <label>Archivo GPX</label>
+    <input type="file" id="gpxFile" accept=".gpx,.xml" />
 
-      <label>Tiempo previsto de carrera</label>
-      <div class="time-grid">
-        <input type="number" id="hours" min="0" value="8" placeholder="Horas" />
-        <input type="number" id="minutes" min="0" max="59" value="0" placeholder="Minutos" />
-        <input type="number" id="seconds" min="0" max="59" value="0" placeholder="Segundos" />
-      </div>
+    <label>Tiempo previsto de carrera</label>
+    <div class="time-grid">
+      <input type="number" id="hours" min="0" value="8" placeholder="Horas">
+      <input type="number" id="minutes" min="0" max="59" value="0" placeholder="Minutos">
+      <input type="number" id="seconds" min="0" max="59" value="0" placeholder="Segundos">
+    </div>
 
-      <label for="weeks">Semanas disponibles hasta la carrera</label>
-      <input type="number" id="weeks" min="1" value="24" />
+    <label>Semanas disponibles hasta la carrera</label>
+    <input type="number" id="weeks" min="1" value="24">
 
-      <button onclick="handleGPX()">Generar informe</button>
-    </section>
+    <button id="generateBtn">Generar informe</button>
+  </section>
 
-    <section id="results"></section>
-  </main>
+  <section id="results"></section>
+</main>
 
 <script>
-let profileChart = null;
+document.getElementById("generateBtn").addEventListener("click", handleGPX);
 
 const terrainColors = {
   "Subida fuerte": "#8b1e1e",
@@ -175,20 +176,28 @@ const terrainColors = {
   "Bajada fuerte": "#1b5e3c"
 };
 
-function toRadians(deg) {
-  return deg * Math.PI / 180;
+function showError(message) {
+  document.getElementById("results").innerHTML = `
+    <div class="error"><strong>Error:</strong> ${message}</div>
+  `;
 }
 
-function haversine(lat1, lon1, lat2, lon2) {
+function toRad(x) {
+  return x * Math.PI / 180;
+}
+
+function distanceMeters(a, b) {
   const R = 6371000;
-  const dLat = toRadians(lat2 - lat1);
-  const dLon = toRadians(lon2 - lon1);
-  const a =
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+
+  const h =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRadians(lat1)) *
-    Math.cos(toRadians(lat2)) *
+    Math.cos(toRad(a.lat)) *
+    Math.cos(toRad(b.lat)) *
     Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return 2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
 function classifySlope(slope) {
@@ -201,7 +210,7 @@ function classifySlope(slope) {
   return "Llano / ondulado";
 }
 
-function smoothElevations(points, windowSize = 5) {
+function smooth(points, windowSize = 5) {
   return points.map((p, i) => {
     let start = Math.max(0, i - windowSize);
     let end = Math.min(points.length - 1, i + windowSize);
@@ -213,7 +222,7 @@ function smoothElevations(points, windowSize = 5) {
       count++;
     }
 
-    return { ...p, eleSmooth: sum / count };
+    return { ...p, ele: sum / count };
   });
 }
 
@@ -221,29 +230,56 @@ function handleGPX() {
   const file = document.getElementById("gpxFile").files[0];
 
   if (!file) {
-    alert("Sube un archivo GPX.");
+    showError("Sube primero un archivo GPX.");
     return;
   }
 
   const reader = new FileReader();
 
-  reader.onload = function(e) {
-    const xml = new DOMParser().parseFromString(e.target.result, "application/xml");
+  reader.onload = function(event) {
+    try {
+      const xml = new DOMParser().parseFromString(event.target.result, "text/xml");
 
-    const points = Array.from(xml.getElementsByTagName("trkpt"))
-      .map(pt => ({
-        lat: parseFloat(pt.getAttribute("lat")),
-        lon: parseFloat(pt.getAttribute("lon")),
-        ele: parseFloat(pt.getElementsByTagName("ele")[0]?.textContent || 0)
-      }))
-      .filter(p => !isNaN(p.lat) && !isNaN(p.lon) && !isNaN(p.ele));
+      const parserError = xml.querySelector("parsererror");
+      if (parserError) {
+        showError("El archivo no parece ser un GPX válido.");
+        return;
+      }
 
-    if (points.length < 10) {
-      alert("El GPX no tiene suficientes puntos válidos.");
-      return;
+      const trkpts = Array.from(xml.getElementsByTagName("trkpt"));
+
+      if (trkpts.length < 2) {
+        showError("No se han encontrado puntos de track en el GPX.");
+        return;
+      }
+
+      let points = trkpts.map(pt => {
+        const eleNode = pt.getElementsByTagName("ele")[0];
+
+        return {
+          lat: Number(pt.getAttribute("lat")),
+          lon: Number(pt.getAttribute("lon")),
+          ele: eleNode ? Number(eleNode.textContent) : NaN
+        };
+      }).filter(p =>
+        Number.isFinite(p.lat) &&
+        Number.isFinite(p.lon) &&
+        Number.isFinite(p.ele)
+      );
+
+      if (points.length < 10) {
+        showError("El GPX tiene pocos puntos válidos o no contiene altitud.");
+        return;
+      }
+
+      analyzeRoute(smooth(points));
+    } catch (err) {
+      showError("Ha ocurrido un problema leyendo el GPX: " + err.message);
     }
+  };
 
-    analyzeRoute(smoothElevations(points));
+  reader.onerror = function() {
+    showError("No se ha podido leer el archivo.");
   };
 
   reader.readAsText(file);
@@ -271,35 +307,44 @@ function analyzeRoute(points) {
     const prev = points[i - 1];
     const curr = points[i];
 
-    const dist = haversine(prev.lat, prev.lon, curr.lat, curr.lon);
-    if (dist < 1 || dist > 300) continue;
+    const dist = distanceMeters(prev, curr);
+    if (dist < 1 || dist > 500) continue;
 
-    const diff = curr.eleSmooth - prev.eleSmooth;
-    const slope = diff / dist * 100;
+    const diff = curr.ele - prev.ele;
+    const slope = (diff / dist) * 100;
     const type = classifySlope(slope);
 
+    const kmStart = totalDistance / 1000;
     totalDistance += dist;
+    const kmEnd = totalDistance / 1000;
 
     if (diff > 0) gain += diff;
     if (diff < 0) loss += Math.abs(diff);
 
     terrain[type] += dist;
 
-    profile.push({
-      km: totalDistance / 1000,
-      ele: curr.eleSmooth,
+    const point = {
+      km: kmEnd,
+      ele: curr.ele,
       slope,
       type
-    });
+    };
+
+    profile.push(point);
 
     segments.push({
+      kmStart,
+      kmEnd,
       distance: dist,
       elevationDiff: diff,
       slope,
-      type,
-      kmStart: (totalDistance - dist) / 1000,
-      kmEnd: totalDistance / 1000
+      type
     });
+  }
+
+  if (totalDistance <= 0) {
+    showError("No se ha podido calcular la distancia del recorrido.");
+    return;
   }
 
   const climbs = detectBlocks(segments, "climb");
@@ -320,20 +365,23 @@ function detectBlocks(segments, mode) {
   const blocks = [];
   let block = null;
 
-  const isMainDirection = s => mode === "climb" ? s.elevationDiff > 0 : s.elevationDiff < 0;
-  const minVertical = 50;
-  const allowedCounterVertical = 25;
+  const minNetVertical = 50;
+  const allowedCounterVertical = 30;
+
+  function isMain(s) {
+    return mode === "climb" ? s.elevationDiff > 0 : s.elevationDiff < 0;
+  }
 
   for (const s of segments) {
     if (!block) {
-      if (isMainDirection(s)) {
+      if (isMain(s)) {
         block = {
           kmStart: s.kmStart,
           kmEnd: s.kmEnd,
           distance: s.distance,
-          vertical: Math.abs(s.elevationDiff),
-          counterVertical: 0,
-          rawVertical: s.elevationDiff
+          positive: Math.max(0, s.elevationDiff),
+          negative: Math.max(0, -s.elevationDiff),
+          counter: 0
         };
       }
       continue;
@@ -341,32 +389,29 @@ function detectBlocks(segments, mode) {
 
     block.kmEnd = s.kmEnd;
     block.distance += s.distance;
-    block.rawVertical += s.elevationDiff;
+    block.positive += Math.max(0, s.elevationDiff);
+    block.negative += Math.max(0, -s.elevationDiff);
 
-    if (isMainDirection(s)) {
-      block.vertical += Math.abs(s.elevationDiff);
-    } else {
-      block.counterVertical += Math.abs(s.elevationDiff);
+    if (!isMain(s)) {
+      block.counter += Math.abs(s.elevationDiff);
     }
 
-    if (block.counterVertical > allowedCounterVertical) {
-      const netVertical = Math.abs(block.rawVertical);
-
-      if (netVertical >= minVertical) {
-        block.netVertical = netVertical;
-        block.avgSlope = block.rawVertical / block.distance * 100;
-        blocks.push(block);
-      }
-
+    if (block.counter > allowedCounterVertical) {
+      closeBlock();
       block = null;
     }
   }
 
-  if (block) {
-    const netVertical = Math.abs(block.rawVertical);
-    if (netVertical >= minVertical) {
-      block.netVertical = netVertical;
-      block.avgSlope = block.rawVertical / block.distance * 100;
+  if (block) closeBlock();
+
+  function closeBlock() {
+    const net = mode === "climb"
+      ? block.positive - block.negative
+      : block.negative - block.positive;
+
+    if (net >= minNetVertical) {
+      block.netVertical = net;
+      block.avgSlope = (net / block.distance) * 100;
       blocks.push(block);
     }
   }
@@ -374,225 +419,180 @@ function detectBlocks(segments, mode) {
   return blocks;
 }
 
-function getRaceDurationHours() {
-  const h = parseInt(document.getElementById("hours").value || 0);
-  const m = parseInt(document.getElementById("minutes").value || 0);
-  const s = parseInt(document.getElementById("seconds").value || 0);
+function durationHours() {
+  const h = Number(document.getElementById("hours").value || 0);
+  const m = Number(document.getElementById("minutes").value || 0);
+  const s = Number(document.getElementById("seconds").value || 0);
   return h + m / 60 + s / 3600;
 }
 
-function getRaceType(data) {
-  const total = data.totalKm * 1000;
-
-  const upKm =
-    (data.terrain["Subida suave"] +
-    data.terrain["Subida moderada"] +
-    data.terrain["Subida fuerte"]) / 1000;
-
-  const downKm =
-    (data.terrain["Bajada suave"] +
-    data.terrain["Bajada moderada"] +
-    data.terrain["Bajada fuerte"]) / 1000;
-
-  const flatKm = data.terrain["Llano / ondulado"] / 1000;
-  const verticalRatio = data.gain / data.totalKm;
-
-  if (verticalRatio > 80 && upKm / data.totalKm > 0.35) {
-    return "Trail de montaña muy condicionado por el desnivel positivo";
-  }
-
-  if (data.climbs.some(c => c.netVertical > 700)) {
-    return "Carrera con grandes ascensiones sostenidas";
-  }
-
-  if (data.descents.some(d => d.netVertical > 700)) {
-    return "Carrera con bajadas largas y alta exigencia excéntrica";
-  }
-
-  if (flatKm / data.totalKm > 0.5) {
-    return "Carrera rápida con predominio de terreno corrible";
-  }
-
-  if (data.climbs.length >= 5 && data.descents.length >= 5) {
-    return "Carrera mixta tipo rompepiernas";
-  }
-
-  return "Trail mixto con demandas combinadas";
-}
-
 function getPlanning(weeks) {
+  weeks = Math.max(1, Number(weeks || 1));
+
   if (weeks >= 24) {
+    const base = Math.round(weeks * 0.45);
+    const specific = Math.round(weeks * 0.32);
+    const competitive = Math.round(weeks * 0.15);
+    const taper = Math.max(1, weeks - base - specific - competitive);
+
     return [
-      ["Base general", Math.round(weeks * 0.45), "Construir continuidad, volumen tolerable, fuerza general, capacidad aeróbica y técnica básica."],
-      ["Desarrollo específico", Math.round(weeks * 0.32), "Introducir desnivel, subidas largas, bajadas, tiradas específicas y nutrición."],
-      ["Preparación competitiva", Math.round(weeks * 0.15), "Simulaciones, bloques clave, estrategia por tramos y ajuste de material."],
-      ["Taper", weeks - Math.round(weeks * 0.45) - Math.round(weeks * 0.32) - Math.round(weeks * 0.15), "Reducir fatiga sin perder tono."]
+      ["Base general", base, "Volumen progresivo, fuerza general, continuidad, técnica básica y desarrollo aeróbico."],
+      ["Desarrollo específico", specific, "Subidas, bajadas, desnivel, tiradas largas específicas y nutrición."],
+      ["Preparación competitiva", competitive, "Simulaciones parciales, estrategia por tramos, material y ritmos/intensidades objetivo."],
+      ["Taper", taper, "Reducir fatiga, mantener activación y llegar con frescura."]
     ];
   }
 
-  if (weeks >= 16) {
+  if (weeks >= 12) {
+    const base = Math.round(weeks * 0.35);
+    const specific = Math.round(weeks * 0.45);
+    const taper = weeks - base - specific;
+
     return [
-      ["Base orientada", Math.round(weeks * 0.35), "Mantener base aeróbica, fuerza y volumen estable."],
-      ["Bloque específico", Math.round(weeks * 0.42), "Priorizar las demandas reales del recorrido."],
-      ["Competitivo y taper", weeks - Math.round(weeks * 0.35) - Math.round(weeks * 0.42), "Simular, afinar y descargar."]
+      ["Base orientada", base, "Consolidar volumen, fuerza y tolerancia muscular."],
+      ["Bloque específico", specific, "Priorizar las demandas principales del recorrido."],
+      ["Afinamiento", Math.max(1, taper), "Simular, ajustar y descargar."]
     ];
   }
 
-  if (weeks >= 8) {
-    return [
-      ["Consolidación", Math.round(weeks * 0.25), "Evitar grandes cambios. Asegurar continuidad y fuerza mínima."],
-      ["Especificidad prioritaria", Math.round(weeks * 0.5), "Entrenar lo más determinante del recorrido."],
-      ["Taper", weeks - Math.round(weeks * 0.25) - Math.round(weeks * 0.5), "Llegar fresco."]
-    ];
-  }
+  const specific = Math.max(1, weeks - 2);
 
   return [
-    ["Preparación mínima viable", weeks, "No buscar grandes adaptaciones. Priorizar salud, frescura, estrategia, nutrición y material."]
+    ["Especificidad prioritaria", specific, "Trabajar lo más determinante del recorrido sin cambios bruscos."],
+    ["Taper", Math.min(2, weeks), "Llegar fresco, sano y con estrategia clara."]
   ];
 }
 
-function getSpecificRecommendations(data) {
-  const duration = getRaceDurationHours();
-  const raceType = getRaceType(data);
-  const bigClimbs = data.climbs.filter(c => c.netVertical >= 500).length;
-  const bigDescents = data.descents.filter(d => d.netVertical >= 500).length;
-  const verticalRatio = data.gain / data.totalKm;
+function getRaceType(data) {
+  const mPerKm = data.gain / data.totalKm;
+  const bigClimb = data.climbs.some(c => c.netVertical >= 700);
+  const bigDescent = data.descents.some(d => d.netVertical >= 700);
 
+  if (bigClimb) return "Carrera con grandes ascensiones sostenidas";
+  if (bigDescent) return "Carrera con bajadas largas y alta exigencia excéntrica";
+  if (mPerKm >= 80) return "Trail de montaña muy condicionado por el desnivel";
+  if (mPerKm <= 30) return "Carrera rápida con mucho terreno corrible";
+  return "Trail mixto con demandas combinadas";
+}
+
+function recommendations(data) {
   const recs = [];
+  const h = durationHours();
+  const mPerKm = data.gain / data.totalKm;
 
-  if (bigClimbs > 0) {
-    recs.push("Incluir bloques sostenidos en subida de 30-60 minutos, alternando carrera y marcha según la pendiente.");
-    recs.push("Practicar el uso de bastones si la carrera tiene ascensiones largas o pendientes superiores al 12-15%.");
+  if (data.climbs.some(c => c.netVertical >= 500)) {
+    recs.push("Entrenar subidas largas de 30-60 minutos, alternando carrera y marcha cuando la pendiente lo exija.");
+    recs.push("Practicar el uso de bastones si las pendientes largas superan aproximadamente el 12-15%.");
   }
 
-  if (bigDescents > 0) {
-    recs.push("Programar bajadas largas progresivas para desarrollar tolerancia excéntrica, evitando introducirlas bruscamente.");
-    recs.push("Añadir fuerza excéntrica de cuádriceps, sóleo y glúteo medio durante todo el bloque específico.");
+  if (data.descents.some(d => d.netVertical >= 500)) {
+    recs.push("Introducir bajadas largas de forma progresiva para mejorar tolerancia excéntrica sin generar daño excesivo.");
+    recs.push("Mantener fuerza de cuádriceps, sóleo, glúteo medio y estabilidad de tronco durante toda la preparación.");
   }
 
-  if (verticalRatio > 70) {
-    recs.push("Priorizar metros positivos semanales sobre kilómetros totales en parte de la preparación específica.");
+  if (mPerKm > 70) {
+    recs.push("En el bloque específico, dar más importancia a los metros positivos semanales que a los kilómetros totales.");
   }
 
-  if (duration >= 5) {
-    recs.push("Entrenar la nutrición con una pauta objetivo de carbohidratos por hora y comprobar tolerancia digestiva en tiradas largas.");
-    recs.push("Diseñar la estrategia de carrera por esfuerzo, no por ritmo: el ritmo pierde valor en recorridos con mucho desnivel.");
+  if (h >= 5) {
+    recs.push("Diseñar una estrategia nutricional por hora y probarla en tiradas largas antes de competir.");
+    recs.push("Planificar la carrera por esfuerzo y por tramos, no por ritmo medio.");
   }
 
-  if (duration >= 10) {
-    recs.push("Preparar tramos de fatiga acumulada: subir o bajar después de varias horas de entrenamiento, no solo en fresco.");
-    recs.push("Incluir simulaciones parciales de material, avituallamientos, sales, cafeína y posibles cambios de temperatura.");
-  }
-
-  if (raceType.includes("rompepiernas")) {
-    recs.push("Entrenar cambios frecuentes de pendiente con fartleks en terreno ondulado y bloques de subida-bajada repetidos.");
+  if (h >= 10) {
+    recs.push("Simular situaciones de fatiga acumulada: subir y bajar después de varias horas, no solo en fresco.");
+    recs.push("Testar material, sales, cafeína, ropa y avituallamientos en entrenamientos específicos.");
   }
 
   if (recs.length === 0) {
-    recs.push("Priorizar economía de carrera, continuidad aeróbica y sesiones a ritmo controlado en terreno similar al de competición.");
+    recs.push("Priorizar continuidad aeróbica, economía de carrera y sesiones en terreno similar al de competición.");
   }
 
   return recs;
 }
 
-function renderProfileChart(profile) {
-  const ctx = document.getElementById("profileChart");
+function renderProfile(profile) {
+  if (!profile.length) return "<p>No se ha podido generar el perfil.</p>";
 
-  if (profileChart) {
-    profileChart.destroy();
+  const width = 1000;
+  const height = 320;
+  const pad = 35;
+
+  const maxKm = Math.max(...profile.map(p => p.km));
+  const minEle = Math.min(...profile.map(p => p.ele));
+  const maxEle = Math.max(...profile.map(p => p.ele));
+
+  function x(km) {
+    return pad + (km / maxKm) * (width - pad * 2);
   }
 
-  const datasets = [];
-
-  for (let i = 1; i < profile.length; i++) {
-    datasets.push({
-      label: profile[i].type,
-      data: [
-        { x: profile[i - 1].km, y: profile[i - 1].ele },
-        { x: profile[i].km, y: profile[i].ele }
-      ],
-      borderColor: terrainColors[profile[i].type],
-      backgroundColor: terrainColors[profile[i].type],
-      borderWidth: 3,
-      pointRadius: 0,
-      tension: 0.15,
-      showLine: true
-    });
+  function y(ele) {
+    return height - pad - ((ele - minEle) / Math.max(1, maxEle - minEle)) * (height - pad * 2);
   }
 
-  profileChart = new Chart(ctx, {
-    type: "scatter",
-    data: { datasets },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: context => {
-              const p = profile[Math.min(context.dataIndex, profile.length - 1)];
-              return `${context.raw.x.toFixed(1)} km · ${context.raw.y.toFixed(0)} m`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: "linear",
-          title: { display: true, text: "Distancia (km)" }
-        },
-        y: {
-          title: { display: true, text: "Altitud (m)" }
-        }
-      }
-    }
-  });
+  let lines = "";
+
+  for (let i = 1; i < profile.length; i += 3) {
+    const a = profile[i - 1];
+    const b = profile[i];
+
+    lines += `
+      <line
+        x1="${x(a.km)}"
+        y1="${y(a.ele)}"
+        x2="${x(b.km)}"
+        y2="${y(b.ele)}"
+        stroke="${terrainColors[b.type]}"
+        stroke-width="3"
+      />
+    `;
+  }
+
+  return `
+    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+      <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="#999" />
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" stroke="#999" />
+      ${lines}
+      <text x="${pad}" y="20" font-size="14">${Math.round(maxEle)} m</text>
+      <text x="${pad}" y="${height - 8}" font-size="14">${Math.round(minEle)} m</text>
+      <text x="${width - 90}" y="${height - 8}" font-size="14">${maxKm.toFixed(1)} km</text>
+    </svg>
+  `;
 }
 
 function generateReport(data) {
-  const weeks = parseInt(document.getElementById("weeks").value || 1);
-  const duration = getRaceDurationHours();
-  const avgSpeed = data.totalKm / duration;
-  const raceType = getRaceType(data);
-  const planning = getPlanning(weeks);
-  const recommendations = getSpecificRecommendations(data);
-
+  const weeks = Number(document.getElementById("weeks").value || 1);
+  const h = Math.max(0.1, durationHours());
   const totalMeters = data.totalKm * 1000;
+  const plan = getPlanning(weeks);
+  const raceType = getRaceType(data);
+  const recs = recommendations(data);
 
-  const results = document.getElementById("results");
-
-  results.innerHTML = `
+  document.getElementById("results").innerHTML = `
     <section class="card">
       <h2>Resumen del recorrido</h2>
-
       <div class="grid">
         <div class="metric">Distancia<strong>${data.totalKm.toFixed(1)} km</strong></div>
         <div class="metric">Desnivel positivo<strong>${Math.round(data.gain)} m+</strong></div>
         <div class="metric">Desnivel negativo<strong>${Math.round(data.loss)} m-</strong></div>
         <div class="metric">Ratio desnivel<strong>${Math.round(data.gain / data.totalKm)} m+/km</strong></div>
-        <div class="metric">Tiempo previsto<strong>${duration.toFixed(2)} h</strong></div>
-        <div class="metric">Velocidad media prevista<strong>${avgSpeed.toFixed(2)} km/h</strong></div>
+        <div class="metric">Tiempo previsto<strong>${h.toFixed(2)} h</strong></div>
+        <div class="metric">Velocidad media prevista<strong>${(data.totalKm / h).toFixed(2)} km/h</strong></div>
       </div>
-
       <p><strong>Tipo de carrera:</strong> ${raceType}</p>
     </section>
 
     <section class="card">
       <h2>Perfil altimétrico coloreado por pendiente</h2>
-      <canvas id="profileChart" height="110"></canvas>
-
-      <p class="small">
-        Colores: subida suave, moderada y fuerte; llano/ondulado; bajada suave, moderada y fuerte.
-      </p>
+      ${renderProfile(data.profile)}
     </section>
 
     <section class="card">
       <h2>Distribución del terreno</h2>
-
       <table>
         <thead>
           <tr>
-            <th>Tipo de terreno</th>
+            <th>Tipo</th>
             <th>Kilómetros</th>
             <th>Porcentaje</th>
           </tr>
@@ -610,85 +610,28 @@ function generateReport(data) {
     </section>
 
     <section class="card">
-      <h2>Bloques principales de subida y bajada</h2>
+      <h2>Subidas detectadas ≥ 50 m+</h2>
+      ${blocksTable(data.climbs, "+")}
 
-      <h3>Subidas detectadas ≥ 50 m+</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Inicio-fin</th>
-            <th>Distancia</th>
-            <th>Desnivel neto</th>
-            <th>Pendiente media</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.climbs.length ? data.climbs.map(c => `
-            <tr>
-              <td>km ${c.kmStart.toFixed(1)} - ${c.kmEnd.toFixed(1)}</td>
-              <td>${(c.distance / 1000).toFixed(2)} km</td>
-              <td>${Math.round(c.netVertical)} m+</td>
-              <td>${Math.abs(c.avgSlope).toFixed(1)}%</td>
-            </tr>
-          `).join("") : `<tr><td colspan="4">No se detectan subidas relevantes.</td></tr>`}
-        </tbody>
-      </table>
-
-      <h3>Bajadas detectadas ≥ 50 m-</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Inicio-fin</th>
-            <th>Distancia</th>
-            <th>Desnivel neto</th>
-            <th>Pendiente media</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data.descents.length ? data.descents.map(d => `
-            <tr>
-              <td>km ${d.kmStart.toFixed(1)} - ${d.kmEnd.toFixed(1)}</td>
-              <td>${(d.distance / 1000).toFixed(2)} km</td>
-              <td>${Math.round(d.netVertical)} m-</td>
-              <td>${Math.abs(d.avgSlope).toFixed(1)}%</td>
-            </tr>
-          `).join("") : `<tr><td colspan="4">No se detectan bajadas relevantes.</td></tr>`}
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>Determinantes del rendimiento</h2>
-
-      <p>Para este recorrido, los factores más importantes probablemente serán:</p>
-
-      <ul>
-        <li><strong>Resistencia aeróbica específica:</strong> capacidad de sostener esfuerzo durante ${duration.toFixed(1)} horas.</li>
-        <li><strong>Fuerza-resistencia en subida:</strong> especialmente relevante si hay bloques largos o mucho m+/km.</li>
-        <li><strong>Tolerancia excéntrica:</strong> clave para mantener rendimiento después de bajadas largas.</li>
-        <li><strong>Economía de carrera/marcha:</strong> decidir cuándo correr y cuándo caminar puede ahorrar mucha energía.</li>
-        <li><strong>Nutrición e hidratación:</strong> determinantes cuanto más se acerque la prueba a formato ultra.</li>
-      </ul>
+      <h2>Bajadas detectadas ≥ 50 m-</h2>
+      ${blocksTable(data.descents, "-")}
     </section>
 
     <section class="card">
       <h2>Planificación global recomendada</h2>
-
-      <p>Semanas disponibles: <strong>${weeks}</strong></p>
-
       <table>
         <thead>
           <tr>
             <th>Fase</th>
-            <th>Duración</th>
+            <th>Semanas</th>
             <th>Objetivo</th>
           </tr>
         </thead>
         <tbody>
-          ${planning.map(p => `
+          ${plan.map(p => `
             <tr>
               <td><strong>${p[0]}</strong></td>
-              <td>${p[1]} semanas</td>
+              <td>${p[1]}</td>
               <td>${p[2]}</td>
             </tr>
           `).join("")}
@@ -698,18 +641,44 @@ function generateReport(data) {
 
     <section class="card">
       <h2>Recomendaciones específicas</h2>
-
       <ul>
-        ${recommendations.map(r => `<li>${r}</li>`).join("")}
+        ${recs.map(r => `<li>${r}</li>`).join("")}
       </ul>
 
       <div class="warning">
-        Este informe todavía no sustituye una planificación individual. Para hacerlo más preciso habría que cruzarlo con historial de lesiones, disponibilidad semanal, experiencia, datos fisiológicos, material, tolerancia nutricional y objetivo competitivo.
+        Informe orientativo. Para una planificación real habría que cruzarlo con historial, disponibilidad, lesiones, nivel actual, experiencia, tolerancia nutricional y objetivos.
       </div>
     </section>
   `;
+}
 
-  renderProfileChart(data.profile);
+function blocksTable(blocks, sign) {
+  if (!blocks.length) {
+    return "<p>No se detectan bloques relevantes.</p>";
+  }
+
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Tramo</th>
+          <th>Distancia</th>
+          <th>Desnivel neto</th>
+          <th>Pendiente media</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${blocks.map(b => `
+          <tr>
+            <td>km ${b.kmStart.toFixed(1)} - ${b.kmEnd.toFixed(1)}</td>
+            <td>${(b.distance / 1000).toFixed(2)} km</td>
+            <td>${Math.round(b.netVertical)} m${sign}</td>
+            <td>${b.avgSlope.toFixed(1)}%</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
 }
 </script>
 </body>
