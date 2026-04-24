@@ -563,47 +563,59 @@ function routeDiagnosis(data) {
     data.terrain["Bajada muy fuerte"] +
     data.terrain["Bajada moderada"]) / 1000;
 
+  let diagnosis = "";
+
   if (longClimbs.length >= 2 && longDescents.length >= 2) {
-    return "Recorrido alpino o de montaña sostenida, con grandes ascensiones y grandes bajadas";
+    diagnosis = "Recorrido alpino o de montaña sostenida, con grandes ascensiones y grandes bajadas";
+  } else if (longClimbs.length >= 1 && longDescents.length >= 1) {
+    diagnosis = "Recorrido de montaña con una o varias ascensiones largas y descensos prolongados";
+  } else if (longClimbs.length >= 1 && shortDescents.length >= 4) {
+    diagnosis = "Recorrido dominado por grandes ascensiones, con bajadas más fragmentadas";
+  } else if (shortClimbs.length >= 8 && shortDescents.length >= 8 && longClimbs.length === 0) {
+    diagnosis = "Recorrido rompepiernas, con muchas subidas y bajadas cortas";
+  } else if (mediumClimbs.length >= 3 && mediumDescents.length >= 3) {
+    diagnosis = "Recorrido quebrado de media montaña, con repetición de subidas y bajadas medias";
+  } else if (steepClimbKm / data.totalKm > 0.25) {
+    diagnosis = "Recorrido muy condicionado por pendientes de subida moderadas, fuertes o muy fuertes";
+  } else if (steepDescentKm / data.totalKm > 0.25) {
+    diagnosis = "Recorrido muy condicionado por bajadas moderadas, fuertes o muy fuertes";
+  } else if (mPerKm >= 90) {
+    diagnosis = "Recorrido de alta densidad de desnivel";
+  } else if (flatPercent >= 55) {
+    diagnosis = "Recorrido muy corrible, con predominio de terreno llano u ondulado";
+  } else if (flatPercent >= 40) {
+    diagnosis = "Recorrido mixto con tramos corribles relevantes";
+  } else {
+    diagnosis = "Recorrido mixto con demandas combinadas";
   }
 
-  if (longClimbs.length >= 1 && longDescents.length >= 1) {
-    return "Recorrido de montaña con una o varias ascensiones largas y descensos prolongados";
+  if (data.maxEle >= 2500) {
+    diagnosis += ", con altitud máxima muy relevante";
+  } else if (data.maxEle >= 2000) {
+    diagnosis += ", con altitud máxima relevante";
+  } else if (data.maxEle >= 1500) {
+    diagnosis += ", con altitud moderada";
   }
 
-  if (longClimbs.length >= 1 && shortDescents.length >= 4) {
-    return "Recorrido dominado por grandes ascensiones, con bajadas más fragmentadas";
-  }
+  return diagnosis;
+}
 
-  if (shortClimbs.length >= 8 && shortDescents.length >= 8 && longClimbs.length === 0) {
-    return "Recorrido rompepiernas, con muchas subidas y bajadas cortas";
-  }
+function isExceptionalLateBlock(blocks, block, totalVertical, totalKm) {
+  if (!blocks.length) return false;
 
-  if (mediumClimbs.length >= 3 && mediumDescents.length >= 3) {
-    return "Recorrido quebrado de media montaña, con repetición de subidas y bajadas medias";
-  }
+  const finalThirdStart = totalKm * 0.66;
+  const sorted = [...blocks].sort((a, b) => b.netVertical - a.netVertical);
+  const rank = sorted.findIndex(b => b === block) + 1;
+  const topLimit = Math.max(1, Math.ceil(sorted.length * 0.3));
 
-  if (steepClimbKm / data.totalKm > 0.25) {
-    return "Recorrido muy condicionado por pendientes de subida moderadas, fuertes o muy fuertes";
-  }
-
-  if (steepDescentKm / data.totalKm > 0.25) {
-    return "Recorrido muy condicionado por bajadas moderadas, fuertes o muy fuertes";
-  }
-
-  if (mPerKm >= 90) {
-    return "Recorrido de alta densidad de desnivel";
-  }
-
-  if (flatPercent >= 55) {
-    return "Recorrido muy corrible, con predominio de terreno llano u ondulado";
-  }
-
-  if (flatPercent >= 40) {
-    return "Recorrido mixto con tramos corribles relevantes";
-  }
-
-  return "Recorrido mixto con demandas combinadas";
+  return (
+    block.kmStart >= finalThirdStart &&
+    block.netVertical >= 300 &&
+    (
+      rank <= topLimit ||
+      block.netVertical >= totalVertical * 0.2
+    )
+  );
 }
 
 function raceDemands(data) {
@@ -653,9 +665,13 @@ function raceDemands(data) {
   const verySteepClimbPercent = verySteepClimbKm / data.totalKm * 100;
   const verySteepDescentPercent = verySteepDescentKm / data.totalKm * 100;
 
-  const finalThirdStart = data.totalKm * 0.66;
-  const lateLongClimb = data.climbs.some(c => c.kmStart >= finalThirdStart && c.netVertical >= 300);
-  const lateLongDescent = data.descents.some(d => d.kmStart >= finalThirdStart && d.netVertical >= 300);
+  const lateImportantClimb = data.climbs.some(c =>
+    isExceptionalLateBlock(data.climbs, c, data.gain, data.totalKm)
+  );
+
+  const lateImportantDescent = data.descents.some(d =>
+    isExceptionalLateBlock(data.descents, d, data.loss, data.totalKm)
+  );
 
   if (longClimbs.length >= 2) {
     demands.push({
@@ -765,17 +781,34 @@ function raceDemands(data) {
     });
   }
 
-  if (lateLongClimb) {
+  if (lateImportantClimb) {
     demands.push({
-      title: "Subida importante en el último tercio",
-      text: "El recorrido incluye una subida relevante en la parte final. Esto aumenta mucho la importancia de la gestión previa: llegar con fatiga excesiva puede penalizar más que en recorridos con desnivel concentrado al inicio."
+      title: "Subida importante y diferencial en el último tercio",
+      text: "El recorrido incluye una subida relevante en la parte final que destaca respecto al resto de ascensiones. Esto aumenta la importancia de la gestión previa: llegar con fatiga excesiva puede penalizar mucho más que en recorridos donde las subidas decisivas aparecen antes."
     });
   }
 
-  if (lateLongDescent) {
+  if (lateImportantDescent) {
     demands.push({
-      title: "Bajada importante en el último tercio",
-      text: "Una bajada larga o media aparece en la parte final. La tolerancia excéntrica y la estabilidad bajo fatiga serán claves para no perder rendimiento en los últimos kilómetros."
+      title: "Bajada importante y diferencial en el último tercio",
+      text: "Una bajada relevante aparece en la parte final y destaca respecto al resto de descensos. La tolerancia excéntrica y la estabilidad bajo fatiga serán claves para no perder rendimiento en los últimos kilómetros."
+    });
+  }
+
+  if (data.maxEle >= 2500) {
+    demands.push({
+      title: "Altitud muy relevante",
+      text: "El recorrido alcanza altitudes superiores a 2500 m. Esto puede aumentar la exigencia cardiorrespiratoria, reducir la disponibilidad de oxígeno y hacer más importante la gestión de intensidad, especialmente si coincide con subidas largas."
+    });
+  } else if (data.maxEle >= 2000) {
+    demands.push({
+      title: "Altitud relevante",
+      text: "El recorrido supera los 2000 m de altitud. Aunque no sea necesariamente una carrera de alta montaña extrema, la altitud puede influir en la percepción de esfuerzo y en la capacidad de sostener intensidad."
+    });
+  } else if (data.maxEle >= 1500) {
+    demands.push({
+      title: "Altitud moderada",
+      text: "El recorrido alcanza altitudes moderadas. Este factor puede añadir cierta exigencia cardiorrespiratoria, especialmente si coincide con subidas largas, tramos sostenidos o alta densidad de desnivel."
     });
   }
 
