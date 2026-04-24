@@ -3,161 +3,262 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Informe de estrategia de carrera | be-long run</title>
+  <title>Analizador GPX | be-long run</title>
 
   <style>
+    :root {
+      --bg: #f4f1ea;
+      --dark: #202820;
+      --text: #1f241f;
+      --card: #ffffff;
+      --soft: #eef0ea;
+      --line: #d9d9d2;
+      --accent: #586f57;
+      --danger: #8b1e1e;
+      --orange: #d65a31;
+      --yellow: #e6a23c;
+      --blue: #4f7cac;
+      --green1: #62a87c;
+      --green2: #2f855a;
+      --green3: #1b5e3c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, sans-serif;
       margin: 0;
-      background: #f4f1ea;
-      color: #1f241f;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
     header {
-      background: #202820;
+      background: var(--dark);
       color: white;
-      padding: 40px 20px;
+      padding: 48px 20px;
       text-align: center;
     }
 
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    header p {
+      margin: 0;
+      opacity: .9;
+      font-size: 1.05rem;
+    }
+
     main {
-      max-width: 1150px;
-      margin: auto;
-      padding: 24px 16px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
     }
 
     .card {
-      background: white;
-      border-radius: 18px;
-      padding: 24px;
+      background: var(--card);
+      border-radius: 22px;
+      padding: 26px;
       margin-bottom: 24px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+
+    .intro {
+      font-size: 1.05rem;
+      line-height: 1.6;
     }
 
     label {
       display: block;
-      font-weight: 700;
-      margin-top: 16px;
+      font-weight: 750;
+      margin-bottom: 8px;
     }
 
-    input, button {
+    input[type="file"] {
       width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border-radius: 10px;
-      border: 1px solid #bbb;
-      font-size: 16px;
-      box-sizing: border-box;
+      padding: 16px;
+      background: var(--soft);
+      border: 2px dashed #adb5a7;
+      border-radius: 16px;
+      font-size: 1rem;
     }
 
     button {
-      background: #202820;
+      margin-top: 18px;
+      width: 100%;
+      padding: 15px 18px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--dark);
       color: white;
+      font-size: 1rem;
       font-weight: 800;
-      border: none;
       cursor: pointer;
-      margin-top: 24px;
     }
 
-    .time-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+    button:hover {
+      background: #334031;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
     }
 
     .metric {
-      background: #f0f2ed;
-      padding: 16px;
-      border-radius: 14px;
+      background: var(--soft);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .metric span {
+      display: block;
+      color: #5e665d;
+      font-size: .9rem;
+      margin-bottom: 8px;
     }
 
     .metric strong {
       display: block;
-      font-size: 25px;
-      margin-top: 6px;
+      font-size: 1.85rem;
+      line-height: 1.1;
+    }
+
+    .section-title {
+      margin-top: 0;
+    }
+
+    .profile-wrap {
+      overflow-x: auto;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 760px;
+      height: 360px;
+      background: #fafaf7;
+      border-radius: 16px;
+      border: 1px solid var(--line);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 14px;
     }
 
     th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
       text-align: left;
+      vertical-align: top;
     }
 
     th {
-      background: #eef0ea;
+      background: var(--soft);
+      font-size: .92rem;
     }
 
     .tag {
-      color: white;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
       display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: white;
+      font-size: .82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .bar {
+      height: 12px;
+      background: #ddd;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .bar > div {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .callout {
+      background: #f2f4ee;
+      border-left: 6px solid var(--accent);
+      border-radius: 14px;
+      padding: 18px;
+      line-height: 1.6;
     }
 
     .warning {
       background: #fff5d6;
-      border-left: 5px solid #d09a00;
-      padding: 14px;
-      border-radius: 8px;
-      margin-top: 18px;
+      border-left: 6px solid #d09a00;
+      border-radius: 14px;
+      padding: 16px;
+      line-height: 1.5;
     }
 
     .error {
       background: #ffe1e1;
-      border-left: 5px solid #b00020;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+      border-left: 6px solid #b00020;
+      border-radius: 14px;
+      padding: 16px;
     }
 
-    svg {
-      width: 100%;
-      height: 360px;
-      background: #f8f8f5;
-      border-radius: 14px;
-      margin-top: 16px;
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .9rem;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    ul {
+      line-height: 1.65;
+    }
+
+    .small {
+      font-size: .9rem;
+      color: #626b60;
     }
   </style>
 </head>
 
 <body>
 <header>
-  <h1>Informe de estrategia de carrera</h1>
-  <p>Análisis del recorrido, demandas principales y planificación global.</p>
+  <h1>Analizador GPX de recorrido</h1>
+  <p>Resumen objetivo del perfil, pendientes, subidas, bajadas y exigencias principales de la carrera.</p>
 </header>
 
 <main>
-  <section class="card">
-    <h2>Datos de entrada</h2>
+  <section class="card intro">
+    <p>
+      Sube un archivo GPX para obtener un análisis del recorrido. Esta herramienta no valora al corredor ni genera una planificación individual:
+      describe objetivamente las características de la carrera y sus posibles exigencias.
+    </p>
 
-    <label>Archivo GPX</label>
+    <label for="gpxFile">Archivo GPX</label>
     <input type="file" id="gpxFile" accept=".gpx,.xml" />
 
-    <label>Tiempo previsto de carrera</label>
-    <div class="time-grid">
-      <input type="number" id="hours" min="0" value="8" placeholder="Horas">
-      <input type="number" id="minutes" min="0" max="59" value="0" placeholder="Minutos">
-      <input type="number" id="seconds" min="0" max="59" value="0" placeholder="Segundos">
-    </div>
-
-    <label>Semanas disponibles hasta la carrera</label>
-    <input type="number" id="weeks" min="1" value="24">
-
-    <button id="generateBtn">Generar informe</button>
+    <button id="generateBtn">Analizar recorrido</button>
   </section>
 
   <section id="results"></section>
@@ -166,7 +267,7 @@
 <script>
 document.getElementById("generateBtn").addEventListener("click", handleGPX);
 
-const terrainColors = {
+const COLORS = {
   "Subida fuerte": "#8b1e1e",
   "Subida moderada": "#d65a31",
   "Subida suave": "#e6a23c",
@@ -178,12 +279,14 @@ const terrainColors = {
 
 function showError(message) {
   document.getElementById("results").innerHTML = `
-    <div class="error"><strong>Error:</strong> ${message}</div>
+    <section class="card error">
+      <strong>Error:</strong> ${message}
+    </section>
   `;
 }
 
-function toRad(x) {
-  return x * Math.PI / 180;
+function toRad(value) {
+  return value * Math.PI / 180;
 }
 
 function distanceMeters(a, b) {
@@ -210,7 +313,7 @@ function classifySlope(slope) {
   return "Llano / ondulado";
 }
 
-function smooth(points, windowSize = 5) {
+function smoothElevation(points, windowSize = 6) {
   return points.map((p, i) => {
     let start = Math.max(0, i - windowSize);
     let end = Math.min(points.length - 1, i + windowSize);
@@ -240,16 +343,15 @@ function handleGPX() {
     try {
       const xml = new DOMParser().parseFromString(event.target.result, "text/xml");
 
-      const parserError = xml.querySelector("parsererror");
-      if (parserError) {
+      if (xml.querySelector("parsererror")) {
         showError("El archivo no parece ser un GPX válido.");
         return;
       }
 
       const trkpts = Array.from(xml.getElementsByTagName("trkpt"));
 
-      if (trkpts.length < 2) {
-        showError("No se han encontrado puntos de track en el GPX.");
+      if (trkpts.length < 10) {
+        showError("No se han encontrado suficientes puntos de track en el GPX.");
         return;
       }
 
@@ -268,13 +370,13 @@ function handleGPX() {
       );
 
       if (points.length < 10) {
-        showError("El GPX tiene pocos puntos válidos o no contiene altitud.");
+        showError("El GPX no contiene suficientes puntos con altitud.");
         return;
       }
 
-      analyzeRoute(smooth(points));
-    } catch (err) {
-      showError("Ha ocurrido un problema leyendo el GPX: " + err.message);
+      analyzeRoute(smoothElevation(points));
+    } catch (error) {
+      showError("No se ha podido procesar el archivo: " + error.message);
     }
   };
 
@@ -289,6 +391,9 @@ function analyzeRoute(points) {
   let totalDistance = 0;
   let gain = 0;
   let loss = 0;
+
+  let minEle = Infinity;
+  let maxEle = -Infinity;
 
   const terrain = {
     "Subida fuerte": 0,
@@ -308,10 +413,11 @@ function analyzeRoute(points) {
     const curr = points[i];
 
     const dist = distanceMeters(prev, curr);
+
     if (dist < 1 || dist > 500) continue;
 
     const diff = curr.ele - prev.ele;
-    const slope = (diff / dist) * 100;
+    const slope = diff / dist * 100;
     const type = classifySlope(slope);
 
     const kmStart = totalDistance / 1000;
@@ -321,16 +427,17 @@ function analyzeRoute(points) {
     if (diff > 0) gain += diff;
     if (diff < 0) loss += Math.abs(diff);
 
+    minEle = Math.min(minEle, curr.ele);
+    maxEle = Math.max(maxEle, curr.ele);
+
     terrain[type] += dist;
 
-    const point = {
+    profile.push({
       km: kmEnd,
       ele: curr.ele,
       slope,
       type
-    };
-
-    profile.push(point);
+    });
 
     segments.push({
       kmStart,
@@ -350,12 +457,15 @@ function analyzeRoute(points) {
   const climbs = detectBlocks(segments, "climb");
   const descents = detectBlocks(segments, "descent");
 
-  generateReport({
+  renderReport({
     totalKm: totalDistance / 1000,
     gain,
     loss,
+    minEle,
+    maxEle,
     terrain,
     profile,
+    segments,
     climbs,
     descents
   });
@@ -368,155 +478,186 @@ function detectBlocks(segments, mode) {
   const minNetVertical = 50;
   const allowedCounterVertical = 30;
 
-  function isMain(s) {
-    return mode === "climb" ? s.elevationDiff > 0 : s.elevationDiff < 0;
+  function isMainDirection(segment) {
+    return mode === "climb"
+      ? segment.elevationDiff > 0
+      : segment.elevationDiff < 0;
   }
 
-  for (const s of segments) {
+  function startBlock(segment) {
+    block = {
+      kmStart: segment.kmStart,
+      kmEnd: segment.kmEnd,
+      distance: segment.distance,
+      positive: Math.max(0, segment.elevationDiff),
+      negative: Math.max(0, -segment.elevationDiff),
+      counterVertical: 0
+    };
+  }
+
+  function addSegment(segment) {
+    block.kmEnd = segment.kmEnd;
+    block.distance += segment.distance;
+    block.positive += Math.max(0, segment.elevationDiff);
+    block.negative += Math.max(0, -segment.elevationDiff);
+
+    if (!isMainDirection(segment)) {
+      block.counterVertical += Math.abs(segment.elevationDiff);
+    }
+  }
+
+  function closeBlock() {
+    const netVertical = mode === "climb"
+      ? block.positive - block.negative
+      : block.negative - block.positive;
+
+    if (netVertical >= minNetVertical) {
+      blocks.push({
+        kmStart: block.kmStart,
+        kmEnd: block.kmEnd,
+        distance: block.distance,
+        netVertical,
+        avgSlope: netVertical / block.distance * 100
+      });
+    }
+
+    block = null;
+  }
+
+  for (const segment of segments) {
     if (!block) {
-      if (isMain(s)) {
-        block = {
-          kmStart: s.kmStart,
-          kmEnd: s.kmEnd,
-          distance: s.distance,
-          positive: Math.max(0, s.elevationDiff),
-          negative: Math.max(0, -s.elevationDiff),
-          counter: 0
-        };
-      }
+      if (isMainDirection(segment)) startBlock(segment);
       continue;
     }
 
-    block.kmEnd = s.kmEnd;
-    block.distance += s.distance;
-    block.positive += Math.max(0, s.elevationDiff);
-    block.negative += Math.max(0, -s.elevationDiff);
+    addSegment(segment);
 
-    if (!isMain(s)) {
-      block.counter += Math.abs(s.elevationDiff);
-    }
-
-    if (block.counter > allowedCounterVertical) {
+    if (block.counterVertical > allowedCounterVertical) {
       closeBlock();
-      block = null;
     }
   }
 
   if (block) closeBlock();
 
-  function closeBlock() {
-    const net = mode === "climb"
-      ? block.positive - block.negative
-      : block.negative - block.positive;
-
-    if (net >= minNetVertical) {
-      block.netVertical = net;
-      block.avgSlope = (net / block.distance) * 100;
-      blocks.push(block);
-    }
-  }
-
-  return blocks;
+  return blocks.sort((a, b) => b.netVertical - a.netVertical);
 }
 
-function durationHours() {
-  const h = Number(document.getElementById("hours").value || 0);
-  const m = Number(document.getElementById("minutes").value || 0);
-  const s = Number(document.getElementById("seconds").value || 0);
-  return h + m / 60 + s / 3600;
-}
-
-function getPlanning(weeks) {
-  weeks = Math.max(1, Number(weeks || 1));
-
-  if (weeks >= 24) {
-    const base = Math.round(weeks * 0.45);
-    const specific = Math.round(weeks * 0.32);
-    const competitive = Math.round(weeks * 0.15);
-    const taper = Math.max(1, weeks - base - specific - competitive);
-
-    return [
-      ["Base general", base, "Volumen progresivo, fuerza general, continuidad, técnica básica y desarrollo aeróbico."],
-      ["Desarrollo específico", specific, "Subidas, bajadas, desnivel, tiradas largas específicas y nutrición."],
-      ["Preparación competitiva", competitive, "Simulaciones parciales, estrategia por tramos, material y ritmos/intensidades objetivo."],
-      ["Taper", taper, "Reducir fatiga, mantener activación y llegar con frescura."]
-    ];
-  }
-
-  if (weeks >= 12) {
-    const base = Math.round(weeks * 0.35);
-    const specific = Math.round(weeks * 0.45);
-    const taper = weeks - base - specific;
-
-    return [
-      ["Base orientada", base, "Consolidar volumen, fuerza y tolerancia muscular."],
-      ["Bloque específico", specific, "Priorizar las demandas principales del recorrido."],
-      ["Afinamiento", Math.max(1, taper), "Simular, ajustar y descargar."]
-    ];
-  }
-
-  const specific = Math.max(1, weeks - 2);
-
-  return [
-    ["Especificidad prioritaria", specific, "Trabajar lo más determinante del recorrido sin cambios bruscos."],
-    ["Taper", Math.min(2, weeks), "Llegar fresco, sano y con estrategia clara."]
-  ];
-}
-
-function getRaceType(data) {
+function routeDiagnosis(data) {
   const mPerKm = data.gain / data.totalKm;
-  const bigClimb = data.climbs.some(c => c.netVertical >= 700);
-  const bigDescent = data.descents.some(d => d.netVertical >= 700);
+  const climbKm =
+    (data.terrain["Subida suave"] +
+    data.terrain["Subida moderada"] +
+    data.terrain["Subida fuerte"]) / 1000;
+  const descentKm =
+    (data.terrain["Bajada suave"] +
+    data.terrain["Bajada moderada"] +
+    data.terrain["Bajada fuerte"]) / 1000;
+  const flatKm = data.terrain["Llano / ondulado"] / 1000;
 
-  if (bigClimb) return "Carrera con grandes ascensiones sostenidas";
-  if (bigDescent) return "Carrera con bajadas largas y alta exigencia excéntrica";
-  if (mPerKm >= 80) return "Trail de montaña muy condicionado por el desnivel";
-  if (mPerKm <= 30) return "Carrera rápida con mucho terreno corrible";
-  return "Trail mixto con demandas combinadas";
+  const bigClimbs = data.climbs.filter(c => c.netVertical >= 500).length;
+  const bigDescents = data.descents.filter(d => d.netVertical >= 500).length;
+
+  if (bigClimbs >= 2 && bigDescents >= 2) {
+    return "Recorrido de montaña con grandes ascensiones y bajadas prolongadas";
+  }
+
+  if (bigClimbs >= 1) {
+    return "Recorrido muy condicionado por ascensiones largas";
+  }
+
+  if (bigDescents >= 1) {
+    return "Recorrido con bajadas largas y alta carga muscular excéntrica";
+  }
+
+  if (mPerKm >= 80) {
+    return "Recorrido de alta densidad de desnivel";
+  }
+
+  if (flatKm / data.totalKm >= 0.5) {
+    return "Recorrido relativamente corrible";
+  }
+
+  if (data.climbs.length >= 5 && data.descents.length >= 5) {
+    return "Recorrido quebrado tipo rompepiernas";
+  }
+
+  return "Recorrido mixto con demandas combinadas";
 }
 
-function recommendations(data) {
-  const recs = [];
-  const h = durationHours();
+function raceDemands(data) {
+  const demands = [];
   const mPerKm = data.gain / data.totalKm;
+  const longClimbs = data.climbs.filter(c => c.netVertical >= 500);
+  const longDescents = data.descents.filter(d => d.netVertical >= 500);
+  const steepClimbKm =
+    (data.terrain["Subida moderada"] + data.terrain["Subida fuerte"]) / 1000;
+  const steepDescentKm =
+    (data.terrain["Bajada moderada"] + data.terrain["Bajada fuerte"]) / 1000;
+  const flatPercent = data.terrain["Llano / ondulado"] / (data.totalKm * 1000) * 100;
 
-  if (data.climbs.some(c => c.netVertical >= 500)) {
-    recs.push("Entrenar subidas largas de 30-60 minutos, alternando carrera y marcha cuando la pendiente lo exija.");
-    recs.push("Practicar el uso de bastones si las pendientes largas superan aproximadamente el 12-15%.");
+  if (longClimbs.length) {
+    demands.push({
+      title: "Fuerza-resistencia en subida",
+      text: "El recorrido incluye ascensiones largas. La exigencia principal no será solo cardiovascular, sino también muscular: mantener eficiencia en pendientes prolongadas, alternar carrera y marcha, y sostener trabajo de extensores de cadera, rodilla y tobillo durante mucho tiempo."
+    });
   }
 
-  if (data.descents.some(d => d.netVertical >= 500)) {
-    recs.push("Introducir bajadas largas de forma progresiva para mejorar tolerancia excéntrica sin generar daño excesivo.");
-    recs.push("Mantener fuerza de cuádriceps, sóleo, glúteo medio y estabilidad de tronco durante toda la preparación.");
+  if (steepClimbKm >= data.totalKm * 0.15) {
+    demands.push({
+      title: "Economía en pendientes moderadas/fuertes",
+      text: "Hay una presencia relevante de subida moderada o fuerte. En este tipo de recorrido, la capacidad de moverse de forma económica en pendiente puede ser más determinante que el ritmo en llano."
+    });
   }
 
-  if (mPerKm > 70) {
-    recs.push("En el bloque específico, dar más importancia a los metros positivos semanales que a los kilómetros totales.");
+  if (longDescents.length) {
+    demands.push({
+      title: "Tolerancia excéntrica en bajada",
+      text: "Las bajadas largas generan una carga excéntrica importante, especialmente en cuádriceps, sóleo y estructuras estabilizadoras. Esto puede condicionar el rendimiento posterior incluso aunque el esfuerzo cardiovascular sea bajo."
+    });
   }
 
-  if (h >= 5) {
-    recs.push("Diseñar una estrategia nutricional por hora y probarla en tiradas largas antes de competir.");
-    recs.push("Planificar la carrera por esfuerzo y por tramos, no por ritmo medio.");
+  if (steepDescentKm >= data.totalKm * 0.15) {
+    demands.push({
+      title: "Técnica y control en bajadas pronunciadas",
+      text: "La cantidad de bajada moderada/fuerte sugiere una exigencia alta de técnica, estabilidad, control del impacto y capacidad de mantener fluidez sin acumular daño muscular excesivo."
+    });
   }
 
-  if (h >= 10) {
-    recs.push("Simular situaciones de fatiga acumulada: subir y bajar después de varias horas, no solo en fresco.");
-    recs.push("Testar material, sales, cafeína, ropa y avituallamientos en entrenamientos específicos.");
+  if (mPerKm >= 70) {
+    demands.push({
+      title: "Alta densidad de desnivel",
+      text: "El ratio de metros positivos por kilómetro es elevado. En este tipo de carrera, los metros de desnivel y la distribución de las subidas describen mejor la exigencia que la distancia total."
+    });
   }
 
-  if (recs.length === 0) {
-    recs.push("Priorizar continuidad aeróbica, economía de carrera y sesiones en terreno similar al de competición.");
+  if (flatPercent >= 45) {
+    demands.push({
+      title: "Tramos corribles relevantes",
+      text: "Existe una proporción importante de terreno llano u ondulado. Esto aumenta la importancia de la economía de carrera y de la capacidad de mantener una intensidad estable en zonas rápidas."
+    });
   }
 
-  return recs;
+  if (data.climbs.length >= 5 && data.descents.length >= 5) {
+    demands.push({
+      title: "Gestión de cambios de pendiente",
+      text: "El recorrido presenta múltiples bloques de subida y bajada. Este patrón tipo rompepiernas exige capacidad para cambiar de ritmo, alternar grupos musculares y evitar picos de esfuerzo innecesarios."
+    });
+  }
+
+  if (!demands.length) {
+    demands.push({
+      title: "Demanda mixta",
+      text: "El recorrido no presenta un único factor dominante. La exigencia vendrá de combinar economía de carrera, tolerancia muscular y buena gestión del esfuerzo en diferentes tipos de terreno."
+    });
+  }
+
+  return demands;
 }
 
 function renderProfile(profile) {
-  if (!profile.length) return "<p>No se ha podido generar el perfil.</p>";
-
   const width = 1000;
-  const height = 320;
-  const pad = 35;
+  const height = 340;
+  const pad = 38;
 
   const maxKm = Math.max(...profile.map(p => p.km));
   const minEle = Math.min(...profile.map(p => p.ele));
@@ -532,7 +673,7 @@ function renderProfile(profile) {
 
   let lines = "";
 
-  for (let i = 1; i < profile.length; i += 3) {
+  for (let i = 1; i < profile.length; i += 2) {
     const a = profile[i - 1];
     const b = profile[i];
 
@@ -542,119 +683,83 @@ function renderProfile(profile) {
         y1="${y(a.ele)}"
         x2="${x(b.km)}"
         y2="${y(b.ele)}"
-        stroke="${terrainColors[b.type]}"
+        stroke="${COLORS[b.type]}"
         stroke-width="3"
+        stroke-linecap="round"
       />
     `;
   }
 
+  const gridLines = [0.25, 0.5, 0.75].map(ratio => {
+    const yy = pad + ratio * (height - pad * 2);
+    return `<line x1="${pad}" y1="${yy}" x2="${width - pad}" y2="${yy}" stroke="#e0e0dc" />`;
+  }).join("");
+
   return `
-    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-      <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="#999" />
-      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" stroke="#999" />
-      ${lines}
-      <text x="${pad}" y="20" font-size="14">${Math.round(maxEle)} m</text>
-      <text x="${pad}" y="${height - 8}" font-size="14">${Math.round(minEle)} m</text>
-      <text x="${width - 90}" y="${height - 8}" font-size="14">${maxKm.toFixed(1)} km</text>
-    </svg>
+    <div class="profile-wrap">
+      <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+        ${gridLines}
+        <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="#999" />
+        <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" stroke="#999" />
+
+        ${lines}
+
+        <text x="${pad}" y="23" font-size="14">${Math.round(maxEle)} m</text>
+        <text x="${pad}" y="${height - 8}" font-size="14">${Math.round(minEle)} m</text>
+        <text x="${width - 95}" y="${height - 8}" font-size="14">${maxKm.toFixed(1)} km</text>
+      </svg>
+    </div>
+
+    <div class="legend">
+      ${Object.entries(COLORS).map(([name, color]) => `
+        <div class="legend-item">
+          <span class="dot" style="background:${color}"></span>
+          ${name}
+        </div>
+      `).join("")}
+    </div>
   `;
 }
 
-function generateReport(data) {
-  const weeks = Number(document.getElementById("weeks").value || 1);
-  const h = Math.max(0.1, durationHours());
+function renderTerrainTable(data) {
   const totalMeters = data.totalKm * 1000;
-  const plan = getPlanning(weeks);
-  const raceType = getRaceType(data);
-  const recs = recommendations(data);
 
-  document.getElementById("results").innerHTML = `
-    <section class="card">
-      <h2>Resumen del recorrido</h2>
-      <div class="grid">
-        <div class="metric">Distancia<strong>${data.totalKm.toFixed(1)} km</strong></div>
-        <div class="metric">Desnivel positivo<strong>${Math.round(data.gain)} m+</strong></div>
-        <div class="metric">Desnivel negativo<strong>${Math.round(data.loss)} m-</strong></div>
-        <div class="metric">Ratio desnivel<strong>${Math.round(data.gain / data.totalKm)} m+/km</strong></div>
-        <div class="metric">Tiempo previsto<strong>${h.toFixed(2)} h</strong></div>
-        <div class="metric">Velocidad media prevista<strong>${(data.totalKm / h).toFixed(2)} km/h</strong></div>
-      </div>
-      <p><strong>Tipo de carrera:</strong> ${raceType}</p>
-    </section>
+  return `
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de terreno</th>
+          <th>Kilómetros</th>
+          <th>Porcentaje</th>
+          <th>Distribución</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(data.terrain).map(([type, meters]) => {
+          const km = meters / 1000;
+          const percent = meters / totalMeters * 100;
 
-    <section class="card">
-      <h2>Perfil altimétrico coloreado por pendiente</h2>
-      ${renderProfile(data.profile)}
-    </section>
-
-    <section class="card">
-      <h2>Distribución del terreno</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Kilómetros</th>
-            <th>Porcentaje</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${Object.entries(data.terrain).map(([type, meters]) => `
+          return `
             <tr>
-              <td><span class="tag" style="background:${terrainColors[type]}">${type}</span></td>
-              <td>${(meters / 1000).toFixed(2)} km</td>
-              <td>${((meters / totalMeters) * 100).toFixed(1)}%</td>
+              <td><span class="tag" style="background:${COLORS[type]}">${type}</span></td>
+              <td>${km.toFixed(2)} km</td>
+              <td>${percent.toFixed(1)}%</td>
+              <td>
+                <div class="bar">
+                  <div style="width:${percent}%; background:${COLORS[type]}"></div>
+                </div>
+              </td>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>Subidas detectadas ≥ 50 m+</h2>
-      ${blocksTable(data.climbs, "+")}
-
-      <h2>Bajadas detectadas ≥ 50 m-</h2>
-      ${blocksTable(data.descents, "-")}
-    </section>
-
-    <section class="card">
-      <h2>Planificación global recomendada</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Fase</th>
-            <th>Semanas</th>
-            <th>Objetivo</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${plan.map(p => `
-            <tr>
-              <td><strong>${p[0]}</strong></td>
-              <td>${p[1]}</td>
-              <td>${p[2]}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </section>
-
-    <section class="card">
-      <h2>Recomendaciones específicas</h2>
-      <ul>
-        ${recs.map(r => `<li>${r}</li>`).join("")}
-      </ul>
-
-      <div class="warning">
-        Informe orientativo. Para una planificación real habría que cruzarlo con historial, disponibilidad, lesiones, nivel actual, experiencia, tolerancia nutricional y objetivos.
-      </div>
-    </section>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
   `;
 }
 
-function blocksTable(blocks, sign) {
+function renderBlocksTable(blocks, sign) {
   if (!blocks.length) {
-    return "<p>No se detectan bloques relevantes.</p>";
+    return `<p>No se detectan bloques relevantes de al menos 50 m${sign}.</p>`;
   }
 
   return `
@@ -665,19 +770,115 @@ function blocksTable(blocks, sign) {
           <th>Distancia</th>
           <th>Desnivel neto</th>
           <th>Pendiente media</th>
+          <th>Clasificación</th>
         </tr>
       </thead>
       <tbody>
-        ${blocks.map(b => `
-          <tr>
-            <td>km ${b.kmStart.toFixed(1)} - ${b.kmEnd.toFixed(1)}</td>
-            <td>${(b.distance / 1000).toFixed(2)} km</td>
-            <td>${Math.round(b.netVertical)} m${sign}</td>
-            <td>${b.avgSlope.toFixed(1)}%</td>
-          </tr>
-        `).join("")}
+        ${blocks.map(b => {
+          let label = "Corta";
+          if (b.netVertical >= 700) label = "Muy larga";
+          else if (b.netVertical >= 300) label = "Larga";
+          else if (b.netVertical >= 120) label = "Media";
+
+          return `
+            <tr>
+              <td>km ${b.kmStart.toFixed(1)} - ${b.kmEnd.toFixed(1)}</td>
+              <td>${(b.distance / 1000).toFixed(2)} km</td>
+              <td>${Math.round(b.netVertical)} m${sign}</td>
+              <td>${b.avgSlope.toFixed(1)}%</td>
+              <td>${label}</td>
+            </tr>
+          `;
+        }).join("")}
       </tbody>
     </table>
+  `;
+}
+
+function renderReport(data) {
+  const diagnosis = routeDiagnosis(data);
+  const demands = raceDemands(data);
+
+  document.getElementById("results").innerHTML = `
+    <section class="card">
+      <h2 class="section-title">Resumen objetivo del recorrido</h2>
+
+      <div class="grid">
+        <div class="metric">
+          <span>Distancia total</span>
+          <strong>${data.totalKm.toFixed(1)} km</strong>
+        </div>
+
+        <div class="metric">
+          <span>Desnivel positivo</span>
+          <strong>${Math.round(data.gain)} m+</strong>
+        </div>
+
+        <div class="metric">
+          <span>Desnivel negativo</span>
+          <strong>${Math.round(data.loss)} m-</strong>
+        </div>
+
+        <div class="metric">
+          <span>Ratio desnivel</span>
+          <strong>${Math.round(data.gain / data.totalKm)} m+/km</strong>
+        </div>
+
+        <div class="metric">
+          <span>Altitud mínima</span>
+          <strong>${Math.round(data.minEle)} m</strong>
+        </div>
+
+        <div class="metric">
+          <span>Altitud máxima</span>
+          <strong>${Math.round(data.maxEle)} m</strong>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:18px;">
+        <strong>Diagnóstico del recorrido:</strong> ${diagnosis}.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Perfil altimétrico coloreado por pendiente</h2>
+      ${renderProfile(data.profile)}
+      <p class="small">
+        La altitud se suaviza ligeramente para reducir ruido del GPS. Los colores indican el tipo de pendiente en cada tramo.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Distribución del terreno</h2>
+      ${renderTerrainTable(data)}
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Subidas principales detectadas ≥ 50 m+</h2>
+      ${renderBlocksTable(data.climbs, "+")}
+
+      <h2 style="margin-top:32px;">Bajadas principales detectadas ≥ 50 m-</h2>
+      ${renderBlocksTable(data.descents, "-")}
+
+      <p class="small">
+        Las subidas y bajadas se agrupan permitiendo pequeñas interrupciones del perfil, para evitar que una gran ascensión se divida por pequeños descansos o repechos intermedios.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">Exigencias principales de la carrera</h2>
+
+      ${demands.map(d => `
+        <div class="callout" style="margin-bottom:14px;">
+          <strong>${d.title}</strong><br>
+          ${d.text}
+        </div>
+      `).join("")}
+
+      <div class="warning">
+        Este informe describe el recorrido, no al deportista. Para convertirlo en una estrategia individual habría que cruzarlo con nivel actual, experiencia, disponibilidad, historial de lesiones, tolerancia nutricional y objetivo competitivo.
+      </div>
+    </section>
   `;
 }
 </script>
