@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Informe de estrategia de carrera | be-long run</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #f5f5f0;
+      color: #202020;
+    }
+
+    header {
+      background: #1f2a24;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 24px;
+      background: #1f2a24;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      background: #34483c;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .metric {
+      background: #f1f3ef;
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 24px;
+      margin-top: 6px;
+    }
+
+    .bar-container {
+      background: #ddd;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 18px;
+      margin: 6px 0 14px;
+    }
+
+    .bar {
+      height: 100%;
+      background: #5f7f68;
+    }
+
+    h2, h3 {
+      color: #1f2a24;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border-left: 5px solid #d39e00;
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    .footer-note {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Informe de estrategia de carrera</h1>
+    <p>Sube tu GPX y obtén una primera orientación sobre las demandas del recorrido y la planificación recomendada.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Datos de la carrera</h2>
+
+      <label for="gpxFile">Archivo GPX</label>
+      <input type="file" id="gpxFile" accept=".gpx" />
+
+      <label for="raceTime">Tiempo estimado de carrera</label>
+      <select id="raceTime">
+        <option value="short">Menos de 2 horas</option>
+        <option value="medium">2-5 horas</option>
+        <option value="long">5-10 horas</option>
+        <option value="ultra">Más de 10 horas</option>
+      </select>
+
+      <label for="weeks">Semanas disponibles hasta la carrera</label>
+      <input type="number" id="weeks" min="1" value="24" />
+
+      <label for="level">Nivel del corredor</label>
+      <select id="level">
+        <option value="beginner">Principiante</option>
+        <option value="intermediate">Intermedio</option>
+        <option value="advanced">Avanzado</option>
+      </select>
+
+      <button onclick="handleGPX()">Generar informe</button>
+    </section>
+
+    <section id="results"></section>
+  </main>
+
+  <script>
+    function toRadians(degrees) {
+      return degrees * Math.PI / 180;
+    }
+
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const dLat = toRadians(lat2 - lat1);
+      const dLon = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRadians(lat1)) *
+        Math.cos(toRadians(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function classifySlope(slope) {
+      if (slope > 15) return "Subida fuerte";
+      if (slope > 8) return "Subida moderada";
+      if (slope > 3) return "Subida suave";
+      if (slope < -15) return "Bajada fuerte";
+      if (slope < -8) return "Bajada moderada";
+      if (slope < -3) return "Bajada suave";
+      return "Llano / ondulado";
+    }
+
+    function handleGPX() {
+      const fileInput = document.getElementById("gpxFile");
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Por favor, sube un archivo GPX.");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        const text = event.target.result;
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "application/xml");
+
+        const points = Array.from(xml.getElementsByTagName("trkpt")).map(pt => ({
+          lat: parseFloat(pt.getAttribute("lat")),
+          lon: parseFloat(pt.getAttribute("lon")),
+          ele: parseFloat(pt.getElementsByTagName("ele")[0]?.textContent || 0)
+        }));
+
+        if (points.length < 2) {
+          alert("El archivo GPX no tiene suficientes puntos de track.");
+          return;
+        }
+
+        analyzeRoute(points);
+      };
+
+      reader.readAsText(file);
+    }
+
+    function analyzeRoute(points) {
+      let totalDistance = 0;
+      let elevationGain = 0;
+      let elevationLoss = 0;
+
+      const terrain = {
+        "Subida fuerte": 0,
+        "Subida moderada": 0,
+        "Subida suave": 0,
+        "Llano / ondulado": 0,
+        "Bajada suave": 0,
+        "Bajada moderada": 0,
+        "Bajada fuerte": 0
+      };
+
+      let climbs = [];
+      let currentClimb = null;
+
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+
+        const distance = haversineDistance(prev.lat, prev.lon, curr.lat, curr.lon);
+        const elevationDiff = curr.ele - prev.ele;
+
+        if (distance < 1) continue;
+
+        const slope = (elevationDiff / distance) * 100;
+        const type = classifySlope(slope);
+
+        totalDistance += distance;
+        terrain[type] += distance;
+
+        if (elevationDiff > 0) elevationGain += elevationDiff;
+        if (elevationDiff < 0) elevationLoss += Math.abs(elevationDiff);
+
+        if (slope > 3) {
+          if (!currentClimb) {
+            currentClimb = { distance: 0, gain: 0 };
+          }
+          currentClimb.distance += distance;
+          currentClimb.gain += Math.max(0, elevationDiff);
+        } else {
+          if (currentClimb && currentClimb.distance > 300) {
+            climbs.push(currentClimb);
+          }
+          currentClimb = null;
+        }
+      }
+
+      if (currentClimb && currentClimb.distance > 300) {
+        climbs.push(currentClimb);
+      }
+
+      const totalKm = totalDistance / 1000;
+      const terrainPercentages = {};
+
+      for (const key in terrain) {
+        terrainPercentages[key] = (terrain[key] / totalDistance) * 100;
+      }
+
+      generateReport({
+        totalKm,
+        elevationGain,
+        elevationLoss,
+        terrainPercentages,
+        climbs
+      });
+    }
+
+    function getRaceType(data) {
+      const up =
+        data.terrainPercentages["Subida fuerte"] +
+        data.terrainPercentages["Subida moderada"] +
+        data.terrainPercentages["Subida suave"];
+
+      const down =
+        data.terrainPercentages["Bajada fuerte"] +
+        data.terrainPercentages["Bajada moderada"] +
+        data.terrainPercentages["Bajada suave"];
+
+      const flat = data.terrainPercentages["Llano / ondulado"];
+
+      if (up > 40 && down > 30) return "Trail de montaña con alta exigencia muscular";
+      if (up > 45) return "Carrera con predominio de subida";
+      if (down > 40) return "Carrera con predominio de bajada y alta carga excéntrica";
+      if (flat > 50) return "Carrera rápida con mucho terreno corrible";
+      return "Carrera mixta tipo rompepiernas";
+    }
+
+    function getDeterminants(data) {
+      const raceType = getRaceType(data);
+
+      if (raceType.includes("montaña")) {
+        return [
+          "Resistencia aeróbica prolongada.",
+          "Fuerza-resistencia en subida.",
+          "Tolerancia excéntrica en bajada.",
+          "Economía de carrera y marcha en pendiente.",
+          "Gestión del esfuerzo y nutrición durante la carrera."
+        ];
+      }
+
+      if (raceType.includes("subida")) {
+        return [
+          "Capacidad aeróbica en subida.",
+          "Fuerza específica de extensores de cadera, rodilla y tobillo.",
+          "Economía de marcha en pendientes pronunciadas.",
+          "Control de intensidad para evitar sobreesfuerzos tempranos."
+        ];
+      }
+
+      if (raceType.includes("bajada")) {
+        return [
+          "Fuerza excéntrica de cuádriceps.",
+          "Técnica de bajada.",
+          "Estabilidad de tobillo, cadera y tronco.",
+          "Tolerancia al daño muscular."
+        ];
+      }
+
+      if (raceType.includes("rápida")) {
+        return [
+          "Economía de carrera.",
+          "Capacidad de sostener ritmos constantes.",
+          "Umbral aeróbico y segundo umbral.",
+          "Estrategia de pacing estable."
+        ];
+      }
+
+      return [
+        "Capacidad de cambiar de ritmo.",
+        "Fuerza-resistencia general.",
+        "Adaptación a subidas y bajadas cortas.",
+        "Gestión del esfuerzo en terreno variable."
+      ];
+    }
+
+    function getPlanning(weeks) {
+      if (weeks >= 20) {
+        return [
+          ["Base general", "40-50%", "Volumen progresivo, fuerza básica, técnica, continuidad y desarrollo aeróbico."],
+          ["Preparación específica", "30-35%", "Subidas, bajadas, desnivel, tiradas largas específicas y nutrición."],
+          ["Preparación competitiva", "15-20%", "Simulaciones, bloques específicos, estrategia de carrera y ajuste del material."],
+          ["Taper", "1-2 semanas", "Reducir fatiga, mantener activación y llegar fresco."]
+        ];
+      }
+
+      if (weeks >= 12) {
+        return [
+          ["Base específica", "35-40%", "Consolidar volumen, fuerza y tolerancia muscular."],
+          ["Bloque específico", "40-45%", "Entrenamientos similares a la carrera y práctica nutricional."],
+          ["Afinamiento", "15-20%", "Simulaciones parciales y reducción progresiva de carga."]
+        ];
+      }
+
+      if (weeks >= 6) {
+        return [
+          ["Priorización", "30%", "Identificar los contenidos más importantes y evitar cambios bruscos."],
+          ["Especificidad", "50%", "Trabajar los aspectos clave del recorrido sin acumular fatiga excesiva."],
+          ["Taper", "20%", "Llegar descansado y con una estrategia clara."]
+        ];
+      }
+
+      return [
+        ["Preparación mínima viable", "100%", "No buscar grandes adaptaciones. Priorizar salud, frescura, reconocimiento de demandas y estrategia."]
+      ];
+    }
+
+    function generateReport(data) {
+      const weeks = parseInt(document.getElementById("weeks").value);
+      const raceTime = document.getElementById("raceTime").value;
+      const level = document.getElementById("level").value;
+
+      const raceType = getRaceType(data);
+      const determinants = getDeterminants(data);
+      const planning = getPlanning(weeks);
+
+      const climbsLong = data.climbs.filter(c => c.distance >= 3000).length;
+      const climbsMedium = data.climbs.filter(c => c.distance >= 1000 && c.distance < 3000).length;
+      const climbsShort = data.climbs.filter(c => c.distance < 1000).length;
+
+      const results = document.getElementById("results");
+
+      results.innerHTML = `
+        <section class="card">
+          <h2>Resumen del recorrido</h2>
+
+          <div class="grid">
+            <div class="metric">Distancia total<strong>${data.totalKm.toFixed(1)} km</strong></div>
+            <div class="metric">Desnivel positivo<strong>${Math.round(data.elevationGain)} m+</strong></div>
+            <div class="metric">Desnivel negativo<strong>${Math.round(data.elevationLoss)} m-</strong></div>
+            <div class="metric">Tipo de carrera<strong>${raceType}</strong></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Distribución del terreno</h2>
+          ${Object.entries(data.terrainPercentages).map(([type, value]) => `
+            <p><strong>${type}</strong>: ${value.toFixed(1)}%</p>
+            <div class="bar-container">
+              <div class="bar" style="width:${value}%"></div>
+            </div>
+          `).join("")}
+        </section>
+
+        <section class="card">
+          <h2>Análisis de subidas</h2>
+          <p>Se han detectado aproximadamente:</p>
+          <ul>
+            <li>${climbsLong} subidas largas, de más de 3 km.</li>
+            <li>${climbsMedium} subidas medias, entre 1 y 3 km.</li>
+            <li>${climbsShort} subidas cortas, entre 300 m y 1 km.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Determinantes principales del rendimiento</h2>
+          <ul>
+            ${determinants.map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Planificación global recomendada</h2>
+          <p>Semanas disponibles: <strong>${weeks}</strong></p>
+
+          ${planning.map(phase => `
+            <h3>${phase[0]} — ${phase[1]}</h3>
+            <p>${phase[2]}</p>
+          `).join("")}
+
+          <div class="warning">
+            Este informe es una orientación inicial. Para convertirlo en una planificación real habría que cruzarlo con el historial del corredor, su disponibilidad, lesiones, nivel actual y respuesta individual al entrenamiento.
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Recomendaciones prácticas iniciales</h2>
+          <ul>
+            <li>Practicar la nutrición en entrenamientos largos si la carrera supera las 5 horas.</li>
+            <li>Incluir trabajo de fuerza durante todo el proceso.</li>
+            <li>Simular el tipo de pendiente dominante del recorrido.</li>
+            <li>Preparar una estrategia de esfuerzo por tramos, no solo por ritmo.</li>
+            <li>Entrenar tanto correr como caminar si hay subidas largas o fuertes.</li>
+          </ul>
+          <p class="footer-note">Versión MVP del generador de informes de be-long run.</p>
+        </section>
+      `;
+    }
+  </script>
+</body>
+</html>
