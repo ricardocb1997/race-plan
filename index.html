@@ -16,9 +16,7 @@
       --accent: #586f57;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -92,9 +90,7 @@
       cursor: pointer;
     }
 
-    button:hover {
-      background: #334031;
-    }
+    button:hover { background: #334031; }
 
     .grid {
       display: grid;
@@ -121,13 +117,9 @@
       line-height: 1.1;
     }
 
-    .section-title {
-      margin-top: 0;
-    }
+    .section-title { margin-top: 0; }
 
-    .profile-wrap {
-      overflow-x: auto;
-    }
+    .profile-wrap { overflow-x: auto; }
 
     svg {
       width: 100%;
@@ -224,10 +216,6 @@
       border-radius: 50%;
     }
 
-    ul {
-      line-height: 1.65;
-    }
-
     .small {
       font-size: .9rem;
       color: #626b60;
@@ -261,23 +249,27 @@
 document.getElementById("generateBtn").addEventListener("click", handleGPX);
 
 const COLORS = {
+  "Subida muy fuerte": "#5c0f0f",
   "Subida fuerte": "#8b1e1e",
   "Subida moderada": "#d65a31",
   "Subida suave": "#e6a23c",
   "Llano / ondulado": "#4f7cac",
   "Bajada suave": "#62a87c",
   "Bajada moderada": "#2f855a",
-  "Bajada fuerte": "#1b5e3c"
+  "Bajada fuerte": "#1b5e3c",
+  "Bajada muy fuerte": "#0b3d2b"
 };
 
 const SLOPE_RANGES = {
-  "Subida fuerte": "≥ 15%",
+  "Subida muy fuerte": "≥ 22%",
+  "Subida fuerte": "15% a 22%",
   "Subida moderada": "8% a 15%",
   "Subida suave": "3% a 8%",
   "Llano / ondulado": "-3% a 3%",
   "Bajada suave": "-3% a -8%",
   "Bajada moderada": "-8% a -15%",
-  "Bajada fuerte": "≤ -15%"
+  "Bajada fuerte": "-15% a -22%",
+  "Bajada muy fuerte": "≤ -22%"
 };
 
 function showError(message) {
@@ -307,9 +299,11 @@ function distanceMeters(a, b) {
 }
 
 function classifySlope(slope) {
+  if (slope >= 22) return "Subida muy fuerte";
   if (slope >= 15) return "Subida fuerte";
   if (slope >= 8) return "Subida moderada";
   if (slope >= 3) return "Subida suave";
+  if (slope <= -22) return "Bajada muy fuerte";
   if (slope <= -15) return "Bajada fuerte";
   if (slope <= -8) return "Bajada moderada";
   if (slope <= -3) return "Bajada suave";
@@ -394,18 +388,19 @@ function analyzeRoute(points) {
   let totalDistance = 0;
   let gain = 0;
   let loss = 0;
-
   let minEle = Infinity;
   let maxEle = -Infinity;
 
   const terrain = {
+    "Subida muy fuerte": 0,
     "Subida fuerte": 0,
     "Subida moderada": 0,
     "Subida suave": 0,
     "Llano / ondulado": 0,
     "Bajada suave": 0,
     "Bajada moderada": 0,
-    "Bajada fuerte": 0
+    "Bajada fuerte": 0,
+    "Bajada muy fuerte": 0
   };
 
   const profile = [];
@@ -416,7 +411,6 @@ function analyzeRoute(points) {
     const curr = points[i];
 
     const dist = distanceMeters(prev, curr);
-
     if (dist < 1 || dist > 500) continue;
 
     const diff = curr.ele - prev.ele;
@@ -435,12 +429,7 @@ function analyzeRoute(points) {
 
     terrain[type] += dist;
 
-    profile.push({
-      km: kmEnd,
-      ele: curr.ele,
-      slope,
-      type
-    });
+    profile.push({ km: kmEnd, ele: curr.ele, slope, type });
 
     segments.push({
       kmStart,
@@ -515,12 +504,17 @@ function detectBlocks(segments, mode) {
       : block.negative - block.positive;
 
     if (netVertical >= minNetVertical) {
+      const signedSlope = mode === "climb"
+        ? netVertical / block.distance * 100
+        : -netVertical / block.distance * 100;
+
       blocks.push({
         kmStart: block.kmStart,
         kmEnd: block.kmEnd,
         distance: block.distance,
         netVertical,
-        avgSlope: netVertical / block.distance * 100
+        avgSlope: signedSlope,
+        type: classifySlope(signedSlope)
       });
     }
 
@@ -560,10 +554,14 @@ function routeDiagnosis(data) {
   const flatPercent = flatKm / data.totalKm * 100;
 
   const steepClimbKm =
-    (data.terrain["Subida moderada"] + data.terrain["Subida fuerte"]) / 1000;
+    (data.terrain["Subida fuerte"] +
+    data.terrain["Subida muy fuerte"] +
+    data.terrain["Subida moderada"]) / 1000;
 
   const steepDescentKm =
-    (data.terrain["Bajada moderada"] + data.terrain["Bajada fuerte"]) / 1000;
+    (data.terrain["Bajada fuerte"] +
+    data.terrain["Bajada muy fuerte"] +
+    data.terrain["Bajada moderada"]) / 1000;
 
   if (longClimbs.length >= 2 && longDescents.length >= 2) {
     return "Recorrido alpino o de montaña sostenida, con grandes ascensiones y grandes bajadas";
@@ -586,11 +584,11 @@ function routeDiagnosis(data) {
   }
 
   if (steepClimbKm / data.totalKm > 0.25) {
-    return "Recorrido muy condicionado por pendientes de subida moderadas o fuertes";
+    return "Recorrido muy condicionado por pendientes de subida moderadas, fuertes o muy fuertes";
   }
 
   if (steepDescentKm / data.totalKm > 0.25) {
-    return "Recorrido muy condicionado por bajadas moderadas o fuertes";
+    return "Recorrido muy condicionado por bajadas moderadas, fuertes o muy fuertes";
   }
 
   if (mPerKm >= 90) {
@@ -610,7 +608,6 @@ function routeDiagnosis(data) {
 
 function raceDemands(data) {
   const demands = [];
-
   const mPerKm = data.gain / data.totalKm;
 
   const longClimbs = data.climbs.filter(c => c.netVertical >= 700);
@@ -624,137 +621,180 @@ function raceDemands(data) {
   const climbKm =
     (data.terrain["Subida suave"] +
     data.terrain["Subida moderada"] +
-    data.terrain["Subida fuerte"]) / 1000;
+    data.terrain["Subida fuerte"] +
+    data.terrain["Subida muy fuerte"]) / 1000;
 
   const descentKm =
     (data.terrain["Bajada suave"] +
     data.terrain["Bajada moderada"] +
-    data.terrain["Bajada fuerte"]) / 1000;
+    data.terrain["Bajada fuerte"] +
+    data.terrain["Bajada muy fuerte"]) / 1000;
 
   const flatKm = data.terrain["Llano / ondulado"] / 1000;
 
+  const verySteepClimbKm = data.terrain["Subida muy fuerte"] / 1000;
+  const verySteepDescentKm = data.terrain["Bajada muy fuerte"] / 1000;
+
   const steepClimbKm =
-    (data.terrain["Subida moderada"] + data.terrain["Subida fuerte"]) / 1000;
+    (data.terrain["Subida moderada"] +
+    data.terrain["Subida fuerte"] +
+    data.terrain["Subida muy fuerte"]) / 1000;
 
   const steepDescentKm =
-    (data.terrain["Bajada moderada"] + data.terrain["Bajada fuerte"]) / 1000;
+    (data.terrain["Bajada moderada"] +
+    data.terrain["Bajada fuerte"] +
+    data.terrain["Bajada muy fuerte"]) / 1000;
 
   const flatPercent = flatKm / data.totalKm * 100;
   const climbPercent = climbKm / data.totalKm * 100;
   const descentPercent = descentKm / data.totalKm * 100;
   const steepClimbPercent = steepClimbKm / data.totalKm * 100;
   const steepDescentPercent = steepDescentKm / data.totalKm * 100;
+  const verySteepClimbPercent = verySteepClimbKm / data.totalKm * 100;
+  const verySteepDescentPercent = verySteepDescentKm / data.totalKm * 100;
+
+  const finalThirdStart = data.totalKm * 0.66;
+  const lateLongClimb = data.climbs.some(c => c.kmStart >= finalThirdStart && c.netVertical >= 300);
+  const lateLongDescent = data.descents.some(d => d.kmStart >= finalThirdStart && d.netVertical >= 300);
 
   if (longClimbs.length >= 2) {
     demands.push({
       title: "Ascensiones largas como eje principal del recorrido",
-      text: "La carrera incluye varias subidas de gran entidad. Esto desplaza la exigencia hacia la fuerza-resistencia, la economía en subida, la capacidad de alternar carrera y marcha, y la gestión de intensidad en esfuerzos prolongados. No es un recorrido de cambios explosivos, sino de sostener trabajo muscular durante mucho tiempo."
+      text: "La carrera incluye varias subidas de gran entidad. Esto desplaza la exigencia hacia la fuerza-resistencia, la economía en subida, la capacidad de alternar carrera y marcha, y la gestión de intensidad en esfuerzos prolongados."
     });
   } else if (longClimbs.length === 1) {
     demands.push({
       title: "Una ascensión principal determinante",
-      text: "El recorrido contiene una subida larga que probablemente condicionará la carrera. En este tipo de perfil es importante gestionar el esfuerzo antes de esa subida, evitar entrar en deuda fisiológica y mantener eficiencia mecánica durante un ascenso prolongado."
+      text: "El recorrido contiene una subida larga que probablemente condicionará la carrera. Será importante gestionar el esfuerzo previo y mantener eficiencia mecánica durante un ascenso prolongado."
     });
   } else if (mediumClimbs.length >= 3) {
     demands.push({
       title: "Repetición de subidas medias",
-      text: "No hay una única gran ascensión dominante, sino varias subidas de entidad media. Esto exige capacidad para repetir esfuerzos de fuerza-resistencia sin perder eficiencia, especialmente si las bajadas intermedias no permiten recuperar completamente."
+      text: "No hay una única gran ascensión dominante, sino varias subidas de entidad media. Esto exige capacidad para repetir esfuerzos de fuerza-resistencia sin perder eficiencia."
     });
   } else if (shortClimbs.length >= 8) {
     demands.push({
       title: "Perfil rompepiernas de subidas cortas",
-      text: "El recorrido acumula muchas subidas cortas. Aquí gana importancia la capacidad de cambiar de ritmo, absorber variaciones constantes de pendiente y evitar picos de intensidad excesivos en repechos que parecen poco importantes de forma aislada, pero que suman mucha fatiga."
+      text: "El recorrido acumula muchas subidas cortas. La dificultad está en absorber cambios constantes de pendiente y evitar picos de intensidad innecesarios."
     });
   }
 
   if (longDescents.length >= 2) {
     demands.push({
       title: "Bajadas largas y alta carga excéntrica acumulada",
-      text: "Las bajadas prolongadas serán uno de los factores limitantes. Aunque cardiovascularmente puedan parecer menos exigentes, generan daño muscular y fatiga neuromuscular, especialmente en cuádriceps, sóleo, glúteo medio y estructuras estabilizadoras."
+      text: "Las bajadas prolongadas serán uno de los factores limitantes. Generan daño muscular y fatiga neuromuscular, especialmente en cuádriceps, sóleo, glúteo medio y estructuras estabilizadoras."
     });
   } else if (longDescents.length === 1) {
     demands.push({
       title: "Una bajada larga potencialmente decisiva",
-      text: "Una bajada prolongada puede marcar el rendimiento posterior. La clave será mantener control, cadencia y estabilidad, evitando bajar por encima de la tolerancia muscular real."
+      text: "Una bajada prolongada puede marcar el rendimiento posterior. La clave será mantener control, cadencia y estabilidad sin superar la tolerancia muscular real."
     });
   } else if (mediumDescents.length >= 3) {
     demands.push({
       title: "Bajadas medias repetidas",
-      text: "La exigencia no viene de una sola bajada extrema, sino de la repetición de descensos medianos. Esto puede generar fatiga muscular progresiva y pérdida de precisión técnica con el paso de los kilómetros."
+      text: "La exigencia no viene de una sola bajada extrema, sino de la repetición de descensos medianos. Esto puede generar fatiga muscular progresiva y pérdida de precisión técnica."
     });
   } else if (shortDescents.length >= 8) {
     demands.push({
       title: "Descensos cortos y frecuentes",
-      text: "Las bajadas cortas repetidas exigen agilidad, estabilidad y capacidad de transición rápida entre subir, bajar y correr. El coste muscular se acumula por repetición, no por una única gran bajada."
+      text: "Las bajadas cortas repetidas exigen agilidad, estabilidad y transiciones rápidas entre subir, bajar y correr."
+    });
+  }
+
+  if (verySteepClimbPercent >= 5) {
+    demands.push({
+      title: "Presencia relevante de subidas muy fuertes",
+      text: "El recorrido incluye tramos de subida por encima del 22%. En estas zonas, caminar de forma eficiente puede ser más rentable que correr. La fuerza específica y la técnica de marcha pasan a ser determinantes."
+    });
+  }
+
+  if (verySteepDescentPercent >= 5) {
+    demands.push({
+      title: "Presencia relevante de bajadas muy fuertes",
+      text: "El recorrido incluye bajadas por debajo del -22%. Estas zonas exigen control técnico, estabilidad, fuerza excéntrica y buena capacidad para absorber impactos sin perder coordinación."
     });
   }
 
   if (steepClimbPercent >= 25) {
     demands.push({
       title: "Alta presencia de pendientes de subida exigentes",
-      text: "Una parte importante del recorrido se sitúa en pendientes moderadas o fuertes. En estas condiciones, el ritmo pierde valor como referencia principal y la economía de movimiento en pendiente pasa a ser determinante."
+      text: "Una parte importante del recorrido se sitúa en pendientes moderadas, fuertes o muy fuertes. En estas condiciones, el ritmo pierde valor y la economía de movimiento en pendiente pasa a ser determinante."
     });
   } else if (climbPercent >= 40) {
     demands.push({
       title: "Predominio claro del terreno ascendente",
-      text: "El recorrido dedica mucho tiempo relativo a subir. Aunque no todas las pendientes sean extremas, la acumulación de metros ascendentes exige buena resistencia aeróbica específica y capacidad muscular para sostener trabajo concéntrico."
+      text: "El recorrido dedica mucho tiempo relativo a subir. La acumulación de metros positivos exige resistencia aeróbica específica y capacidad muscular para sostener trabajo concéntrico."
     });
   }
 
   if (steepDescentPercent >= 25) {
     demands.push({
-      title: "Alta presencia de bajadas técnicas o muscularmente agresivas",
-      text: "El porcentaje de bajada moderada o fuerte es elevado. Esto aumenta la importancia de la técnica, la estabilidad, el control del impacto y la tolerancia al daño muscular."
+      title: "Alta presencia de bajadas agresivas",
+      text: "El porcentaje de bajada moderada, fuerte o muy fuerte es elevado. Esto aumenta la importancia de la técnica, la estabilidad, el control del impacto y la tolerancia al daño muscular."
     });
   } else if (descentPercent >= 40) {
     demands.push({
       title: "Predominio relevante del terreno descendente",
-      text: "La carrera incluye una proporción alta de bajada. La capacidad de descender con eficiencia y sin destruir muscularmente las piernas puede ser tan importante como la capacidad de subir."
+      text: "La carrera incluye una proporción alta de bajada. Descender con eficiencia y sin destruir muscularmente las piernas puede ser tan importante como subir."
     });
   }
 
   if (longClimbs.length >= 1 && longDescents.length >= 1) {
     demands.push({
       title: "Gestión de grandes bloques de esfuerzo",
-      text: "El perfil parece organizado en bloques largos de subida y bajada. Esto no es exactamente un recorrido rompepiernas: exige paciencia, control de intensidad y capacidad de sostener patrones de movimiento durante mucho tiempo."
+      text: "El perfil parece organizado en bloques largos de subida y bajada. No es exactamente un recorrido rompepiernas: exige paciencia, control de intensidad y capacidad de sostener patrones de movimiento durante mucho tiempo."
     });
   }
 
   if (shortClimbs.length >= 8 && shortDescents.length >= 8 && longClimbs.length === 0 && longDescents.length === 0) {
     demands.push({
       title: "Exigencia tipo rompepiernas",
-      text: "El recorrido cambia constantemente de pendiente. La dificultad no está en una subida o bajada concreta, sino en la suma de pequeñas demandas. Esto favorece a corredores con buena reactividad, fuerza-resistencia general y capacidad para regular esfuerzos variables."
+      text: "El recorrido cambia constantemente de pendiente. La dificultad está en la suma de pequeñas demandas, no en una subida o bajada concreta."
     });
   }
 
   if (flatPercent >= 55) {
     demands.push({
       title: "Alta importancia de la economía de carrera",
-      text: "El recorrido tiene mucho terreno corrible. En este tipo de carrera, la capacidad de correr de forma eficiente durante mucho tiempo cobra más importancia que en perfiles puramente montañosos."
+      text: "El recorrido tiene mucho terreno corrible. La capacidad de correr de forma eficiente durante mucho tiempo cobra más importancia que en perfiles puramente montañosos."
     });
   } else if (flatPercent >= 35) {
     demands.push({
       title: "Tramos corribles que pueden marcar diferencias",
-      text: "Aunque hay desnivel, el recorrido también ofrece tramos donde se puede correr. La exigencia será combinar eficiencia en llano con buena gestión del desnivel, evitando perder demasiado tiempo en zonas favorables."
+      text: "Aunque hay desnivel, el recorrido también ofrece tramos donde se puede correr. La exigencia será combinar eficiencia en llano con buena gestión del desnivel."
+    });
+  }
+
+  if (lateLongClimb) {
+    demands.push({
+      title: "Subida importante en el último tercio",
+      text: "El recorrido incluye una subida relevante en la parte final. Esto aumenta mucho la importancia de la gestión previa: llegar con fatiga excesiva puede penalizar más que en recorridos con desnivel concentrado al inicio."
+    });
+  }
+
+  if (lateLongDescent) {
+    demands.push({
+      title: "Bajada importante en el último tercio",
+      text: "Una bajada larga o media aparece en la parte final. La tolerancia excéntrica y la estabilidad bajo fatiga serán claves para no perder rendimiento en los últimos kilómetros."
     });
   }
 
   if (mPerKm >= 90) {
     demands.push({
       title: "Densidad de desnivel muy alta",
-      text: "El ratio de metros positivos por kilómetro es muy elevado. En este tipo de recorrido, la distancia total puede infravalorar la dificultad real. El desnivel, la pendiente y la distribución de ascensiones son los factores más representativos."
+      text: "El ratio de metros positivos por kilómetro es muy elevado. La distancia total puede infravalorar la dificultad real: el desnivel, la pendiente y la distribución de ascensiones son más representativos."
     });
   } else if (mPerKm <= 30) {
     demands.push({
       title: "Baja densidad de desnivel",
-      text: "El recorrido tiene poca carga vertical relativa. La exigencia probablemente estará más relacionada con la capacidad de correr, sostener ritmo y mantener economía que con la fuerza-resistencia pura de montaña."
+      text: "El recorrido tiene poca carga vertical relativa. La exigencia probablemente estará más relacionada con correr, sostener ritmo y mantener economía que con la fuerza-resistencia pura de montaña."
     });
   }
 
   if (!demands.length) {
     demands.push({
       title: "Demanda mixta sin un único factor dominante",
-      text: "El recorrido combina diferentes tipos de terreno sin que uno destaque claramente sobre el resto. La clave será una preparación equilibrada: economía de carrera, fuerza-resistencia, tolerancia a bajadas y buena gestión del esfuerzo."
+      text: "El recorrido combina diferentes tipos de terreno sin que uno destaque claramente. La clave será una preparación equilibrada: economía de carrera, fuerza-resistencia, tolerancia a bajadas y buena gestión del esfuerzo."
     });
   }
 
@@ -806,12 +846,9 @@ function renderProfile(profile) {
     <div class="profile-wrap">
       <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
         ${gridLines}
-
         <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="#999" />
         <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" stroke="#999" />
-
         ${lines}
-
         <text x="${pad}" y="23" font-size="14">${Math.round(maxEle)} m</text>
         <text x="${pad}" y="${height - 8}" font-size="14">${Math.round(minEle)} m</text>
         <text x="${width - 95}" y="${height - 8}" font-size="14">${maxKm.toFixed(1)} km</text>
@@ -880,6 +917,7 @@ function renderBlocksTable(blocks, sign) {
           <th>Distancia</th>
           <th>Desnivel neto</th>
           <th>Pendiente media</th>
+          <th>Tipo de pendiente</th>
           <th>Clasificación</th>
         </tr>
       </thead>
@@ -895,7 +933,8 @@ function renderBlocksTable(blocks, sign) {
               <td>km ${b.kmStart.toFixed(1)} - ${b.kmEnd.toFixed(1)}</td>
               <td>${(b.distance / 1000).toFixed(2)} km</td>
               <td>${Math.round(b.netVertical)} m${sign}</td>
-              <td>${b.avgSlope.toFixed(1)}%</td>
+              <td>${Math.abs(b.avgSlope).toFixed(1)}%</td>
+              <td><span class="tag" style="background:${COLORS[b.type]}">${b.type}</span></td>
               <td>${label}</td>
             </tr>
           `;
@@ -914,35 +953,12 @@ function renderReport(data) {
       <h2 class="section-title">Resumen objetivo del recorrido</h2>
 
       <div class="grid">
-        <div class="metric">
-          <span>Distancia total</span>
-          <strong>${data.totalKm.toFixed(1)} km</strong>
-        </div>
-
-        <div class="metric">
-          <span>Desnivel positivo</span>
-          <strong>${Math.round(data.gain)} m+</strong>
-        </div>
-
-        <div class="metric">
-          <span>Desnivel negativo</span>
-          <strong>${Math.round(data.loss)} m-</strong>
-        </div>
-
-        <div class="metric">
-          <span>Ratio desnivel</span>
-          <strong>${Math.round(data.gain / data.totalKm)} m+/km</strong>
-        </div>
-
-        <div class="metric">
-          <span>Altitud mínima</span>
-          <strong>${Math.round(data.minEle)} m</strong>
-        </div>
-
-        <div class="metric">
-          <span>Altitud máxima</span>
-          <strong>${Math.round(data.maxEle)} m</strong>
-        </div>
+        <div class="metric"><span>Distancia total</span><strong>${data.totalKm.toFixed(1)} km</strong></div>
+        <div class="metric"><span>Desnivel positivo</span><strong>${Math.round(data.gain)} m+</strong></div>
+        <div class="metric"><span>Desnivel negativo</span><strong>${Math.round(data.loss)} m-</strong></div>
+        <div class="metric"><span>Ratio desnivel</span><strong>${Math.round(data.gain / data.totalKm)} m+/km</strong></div>
+        <div class="metric"><span>Altitud mínima</span><strong>${Math.round(data.minEle)} m</strong></div>
+        <div class="metric"><span>Altitud máxima</span><strong>${Math.round(data.maxEle)} m</strong></div>
       </div>
 
       <div class="callout" style="margin-top:18px;">
