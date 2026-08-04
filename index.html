@@ -6,23 +6,53 @@
   <title>Analizador GPX | be-long run</title>
 
   <style>
+
     :root {
       --bg: #f4f1ea;
       --dark: #202820;
+      --dark-hover: #334031;
       --text: #1f241f;
       --card: #ffffff;
       --soft: #eef0ea;
+      --soft-hover: #e8ece4;
       --line: #d9d9d2;
       --accent: #586f57;
+      --accent-soft: #f2f4ee;
+      --muted: #626b60;
+      --warning: #d09a00;
+      --warning-bg: #fff5d6;
+      --error: #b00020;
+      --error-bg: #ffe1e1;
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --shadow-card: 0 10px 30px rgba(32, 40, 32, .08);
+      --shadow-card-hover: 0 14px 36px rgba(32, 40, 32, .12);
     }
 
-    * { box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
     }
 
     header {
@@ -35,31 +65,39 @@
     header h1 {
       margin: 0 0 10px;
       font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -.02em;
     }
 
     header p {
-      margin: 0;
+      max-width: 760px;
+      margin: 0 auto;
       opacity: .9;
       font-size: 1.05rem;
     }
 
     main {
-      max-width: 1180px;
+      width: min(100% - 32px, 1180px);
       margin: 0 auto;
-      padding: 28px 16px 60px;
+      padding: 28px 0 60px;
     }
 
     .card {
       background: var(--card);
-      border-radius: 22px;
+      border: 1px solid rgba(32, 40, 32, .05);
+      border-radius: var(--radius-lg);
       padding: 26px;
       margin-bottom: 24px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      box-shadow: var(--shadow-card);
     }
 
     .intro {
       font-size: 1.05rem;
-      line-height: 1.6;
+      line-height: 1.65;
+    }
+
+    .form-group {
+      margin-top: 24px;
     }
 
     label {
@@ -72,9 +110,21 @@
       width: 100%;
       padding: 16px;
       background: var(--soft);
+      color: var(--text);
       border: 2px dashed #adb5a7;
-      border-radius: 16px;
+      border-radius: var(--radius-md);
       font-size: 1rem;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+
+    input[type="file"]:hover {
+      background: #e9ede6;
+    }
+
+    input[type="file"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(88, 111, 87, .14);
     }
 
     button {
@@ -82,15 +132,29 @@
       width: 100%;
       padding: 15px 18px;
       border: 0;
-      border-radius: 14px;
+      border-radius: var(--radius-md);
       background: var(--dark);
       color: white;
       font-size: 1rem;
       font-weight: 800;
       cursor: pointer;
+      transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
     }
 
-    button:hover { background: #334031; }
+    button:hover {
+      background: var(--dark-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(32, 40, 32, .16);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(88, 111, 87, .4);
+      outline-offset: 3px;
+    }
 
     .grid {
       display: grid;
@@ -100,8 +164,15 @@
 
     .metric {
       background: var(--soft);
-      border-radius: 16px;
+      border: 1px solid rgba(32, 40, 32, .04);
+      border-radius: var(--radius-md);
       padding: 18px;
+      transition: transform 160ms ease, background-color 160ms ease;
+    }
+
+    .metric:hover {
+      transform: translateY(-2px);
+      background: var(--soft-hover);
     }
 
     .metric span {
@@ -117,37 +188,61 @@
       line-height: 1.1;
     }
 
-    .section-title { margin-top: 0; }
+    .section-title {
+      margin-top: 0;
+      line-height: 1.2;
+    }
 
-    .profile-wrap { overflow-x: auto; }
+    .profile-wrap,
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 
     svg {
       width: 100%;
       min-width: 760px;
       height: 360px;
       background: #fafaf7;
-      border-radius: 16px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--line);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      min-width: 720px;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
       overflow: hidden;
-      border-radius: 14px;
+      background: var(--card);
     }
 
-    th, td {
+    th,
+    td {
       padding: 12px 10px;
       border-bottom: 1px solid var(--line);
       text-align: left;
       vertical-align: top;
     }
 
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
     th {
       background: var(--soft);
       font-size: .92rem;
+    }
+
+    tbody tr {
+      transition: background-color 150ms ease;
+    }
+
+    tbody tr:hover {
+      background: #fafbf8;
     }
 
     .tag {
@@ -173,27 +268,27 @@
       border-radius: 999px;
     }
 
-    .callout {
-      background: #f2f4ee;
-      border-left: 6px solid var(--accent);
-      border-radius: 14px;
+    .callout,
+    .warning,
+    .error {
+      border-radius: var(--radius-md);
       padding: 18px;
       line-height: 1.6;
     }
 
+    .callout {
+      background: var(--accent-soft);
+      border-left: 6px solid var(--accent);
+    }
+
     .warning {
-      background: #fff5d6;
-      border-left: 6px solid #d09a00;
-      border-radius: 14px;
-      padding: 16px;
-      line-height: 1.5;
+      background: var(--warning-bg);
+      border-left: 6px solid var(--warning);
     }
 
     .error {
-      background: #ffe1e1;
-      border-left: 6px solid #b00020;
-      border-radius: 14px;
-      padding: 16px;
+      background: var(--error-bg);
+      border-left: 6px solid var(--error);
     }
 
     .legend {
@@ -213,12 +308,53 @@
     .dot {
       width: 14px;
       height: 14px;
+      flex: 0 0 14px;
       border-radius: 50%;
     }
 
     .small {
       font-size: .9rem;
-      color: #626b60;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 38px 18px;
+      }
+
+      main {
+        width: min(100% - 24px, 1180px);
+        padding-top: 20px;
+      }
+
+      .card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .metric strong {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
+      }
     }
   </style>
 </head>
@@ -236,8 +372,10 @@
       describe objetivamente las características de la carrera y sus posibles exigencias.
     </p>
 
-    <label for="gpxFile">Archivo GPX</label>
-    <input type="file" id="gpxFile" accept=".gpx,.xml" />
+    <div class="form-group">
+      <label for="gpxFile">Archivo GPX</label>
+      <input type="file" id="gpxFile" accept=".gpx,.xml" />
+    </div>
 
     <button id="generateBtn">Analizar recorrido</button>
   </section>
@@ -903,7 +1041,8 @@ function renderTerrainTable(data) {
   const totalMeters = data.totalKm * 1000;
 
   return `
-    <table>
+    <div class="table-wrap">
+      <table>
       <thead>
         <tr>
           <th>Tipo de terreno</th>
@@ -933,7 +1072,8 @@ function renderTerrainTable(data) {
           `;
         }).join("")}
       </tbody>
-    </table>
+      </table>
+    </div>
   `;
 }
 
@@ -943,7 +1083,8 @@ function renderBlocksTable(blocks, sign) {
   }
 
   return `
-    <table>
+    <div class="table-wrap">
+      <table>
       <thead>
         <tr>
           <th>Tramo</th>
@@ -973,7 +1114,8 @@ function renderBlocksTable(blocks, sign) {
           `;
         }).join("")}
       </tbody>
-    </table>
+      </table>
+    </div>
   `;
 }
 
