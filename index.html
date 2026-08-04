@@ -8,26 +8,26 @@
   <style>
 
     :root {
-      --bg: #f4f1ea;
-      --dark: #202820;
-      --dark-hover: #334031;
-      --text: #1f241f;
-      --card: #ffffff;
-      --soft: #eef0ea;
-      --soft-hover: #e8ece4;
-      --line: #d9d9d2;
-      --accent: #586f57;
-      --accent-soft: #f2f4ee;
-      --muted: #626b60;
+      --blue: #2f5bea;
+      --blue-dark: #2449c9;
+      --charcoal: #5a5a5a;
+      --charcoal-deep: #424242;
+      --text: #202020;
+      --muted: #6d6d6d;
+      --white: #ffffff;
+      --off-white: #f7f7f5;
+      --surface: #ffffff;
+      --surface-soft: #f1f1ef;
+      --line: #d8d8d5;
+      --success-soft: #f4f7f3;
       --warning: #d09a00;
-      --warning-bg: #fff5d6;
+      --warning-bg: #fff7df;
       --error: #b00020;
-      --error-bg: #ffe1e1;
+      --error-bg: #ffe5e5;
       --radius-sm: 12px;
-      --radius-md: 16px;
-      --radius-lg: 22px;
-      --shadow-card: 0 10px 30px rgba(32, 40, 32, .08);
-      --shadow-card-hover: 0 14px 36px rgba(32, 40, 32, .12);
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      --shadow: 0 18px 45px rgba(0, 0, 0, .08);
     }
 
     *,
@@ -43,8 +43,8 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
       color: var(--text);
+      background: var(--off-white);
       line-height: 1.5;
     }
 
@@ -55,96 +55,170 @@
       font: inherit;
     }
 
-    header {
-      background: var(--dark);
-      color: white;
-      padding: 48px 20px;
+    .site-bar {
+      min-height: 118px;
+      padding: 26px 5vw;
+      background: var(--blue);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
     }
 
+    .site-bar__brand {
+      font-size: .82rem;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(68, 68, 68, .88), rgba(68, 68, 68, .88)),
+        radial-gradient(circle at 85% 30%, rgba(255,255,255,.08), transparent 28%),
+        linear-gradient(135deg, #666 0%, #4f4f4f 100%);
+      color: var(--white);
+      padding: 70px 24px 76px;
+      text-align: center;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      inset: auto -8% -80px auto;
+      width: 48%;
+      height: 240px;
+      opacity: .14;
+      background:
+        linear-gradient(145deg, transparent 20%, #111 21% 36%, transparent 37%),
+        linear-gradient(25deg, transparent 42%, #111 43% 57%, transparent 58%);
+      transform: skewX(-8deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: var(--white);
+      font-size: .84rem;
+      font-weight: 700;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      opacity: .9;
+    }
+
     header h1 {
-      margin: 0 0 10px;
-      font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.1;
-      letter-spacing: -.02em;
+      position: relative;
+      z-index: 1;
+      margin: 0 auto 24px;
+      color: var(--blue);
+      font-size: clamp(3rem, 7vw, 6.3rem);
+      font-weight: 700;
+      line-height: .95;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
     }
 
     header p {
-      max-width: 760px;
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
       margin: 0 auto;
-      opacity: .9;
-      font-size: 1.05rem;
+      font-size: clamp(1.05rem, 1.9vw, 1.35rem);
+      line-height: 1.55;
+      font-weight: 350;
+      color: rgba(255, 255, 255, .94);
     }
 
     main {
-      width: min(100% - 32px, 1180px);
+      width: min(100% - 34px, 1180px);
       margin: 0 auto;
-      padding: 28px 0 60px;
+      padding: 44px 0 80px;
     }
 
     .card {
-      background: var(--card);
-      border: 1px solid rgba(32, 40, 32, .05);
+      background: var(--surface);
+      border: 1px solid rgba(0, 0, 0, .06);
       border-radius: var(--radius-lg);
-      padding: 26px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-card);
+      padding: 34px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
     }
 
     .intro {
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
       font-size: 1.05rem;
-      line-height: 1.65;
+      line-height: 1.72;
+    }
+
+    .intro > p:first-child {
+      max-width: 900px;
+      margin: 0 auto 28px;
+      text-align: center;
+      color: var(--muted);
     }
 
     .form-group {
-      margin-top: 24px;
+      margin-top: 10px;
     }
 
     label {
       display: block;
-      font-weight: 750;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      font-size: .85rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--charcoal-deep);
     }
 
     input[type="file"] {
       width: 100%;
-      padding: 16px;
-      background: var(--soft);
+      padding: 18px;
+      background: var(--surface-soft);
       color: var(--text);
-      border: 2px dashed #adb5a7;
+      border: 1px solid var(--line);
       border-radius: var(--radius-md);
-      font-size: 1rem;
       outline: none;
       transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
     }
 
     input[type="file"]:hover {
-      background: #e9ede6;
+      background: #ebebE8;
     }
 
     input[type="file"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(88, 111, 87, .14);
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(47, 91, 234, .14);
     }
 
     button {
-      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      padding: 15px 18px;
-      border: 0;
-      border-radius: var(--radius-md);
-      background: var(--dark);
-      color: white;
+      margin-top: 18px;
+      padding: 16px 22px;
+      border: 1.5px solid var(--blue);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--blue);
       font-size: 1rem;
-      font-weight: 800;
+      font-weight: 650;
       cursor: pointer;
-      transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+      transition: color 160ms ease, background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
     }
 
     button:hover {
-      background: var(--dark-hover);
+      color: var(--white);
+      background: var(--blue);
       transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(32, 40, 32, .16);
+      box-shadow: 0 10px 24px rgba(47, 91, 234, .22);
     }
 
     button:active {
@@ -152,45 +226,55 @@
     }
 
     button:focus-visible {
-      outline: 3px solid rgba(88, 111, 87, .4);
-      outline-offset: 3px;
+      outline: 3px solid rgba(47, 91, 234, .3);
+      outline-offset: 4px;
+    }
+
+    .section-title {
+      margin: 0 0 26px;
+      color: var(--charcoal-deep);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 650;
+      letter-spacing: -.025em;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0;
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
     }
 
     .metric {
-      background: var(--soft);
-      border: 1px solid rgba(32, 40, 32, .04);
-      border-radius: var(--radius-md);
-      padding: 18px;
-      transition: transform 160ms ease, background-color 160ms ease;
+      min-height: 132px;
+      padding: 24px 20px;
+      background: var(--white);
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      transition: background-color 160ms ease;
     }
 
     .metric:hover {
-      transform: translateY(-2px);
-      background: var(--soft-hover);
+      background: var(--surface-soft);
     }
 
     .metric span {
       display: block;
-      color: #5e665d;
-      font-size: .9rem;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
     }
 
     .metric strong {
       display: block;
-      font-size: 1.85rem;
+      color: var(--blue);
+      font-size: 1.8rem;
       line-height: 1.1;
-    }
-
-    .section-title {
-      margin-top: 0;
-      line-height: 1.2;
+      font-weight: 700;
     }
 
     .profile-wrap,
@@ -203,26 +287,26 @@
       width: 100%;
       min-width: 760px;
       height: 360px;
-      background: #fafaf7;
-      border-radius: var(--radius-md);
+      background: #fbfbfa;
       border: 1px solid var(--line);
+      border-radius: var(--radius-md);
     }
 
     table {
       width: 100%;
       min-width: 720px;
+      margin-top: 14px;
       border-collapse: separate;
       border-spacing: 0;
-      margin-top: 14px;
       border: 1px solid var(--line);
       border-radius: var(--radius-md);
       overflow: hidden;
-      background: var(--card);
+      background: var(--white);
     }
 
     th,
     td {
-      padding: 12px 10px;
+      padding: 14px 12px;
       border-bottom: 1px solid var(--line);
       text-align: left;
       vertical-align: top;
@@ -233,8 +317,11 @@
     }
 
     th {
-      background: var(--soft);
-      font-size: .92rem;
+      background: var(--charcoal-deep);
+      color: var(--white);
+      font-size: .8rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
     }
 
     tbody tr {
@@ -242,25 +329,25 @@
     }
 
     tbody tr:hover {
-      background: #fafbf8;
+      background: #f8f8f6;
     }
 
     .tag {
       display: inline-block;
-      padding: 5px 10px;
+      padding: 6px 10px;
       border-radius: 999px;
-      color: white;
-      font-size: .82rem;
-      font-weight: 800;
+      color: var(--white);
+      font-size: .78rem;
+      font-weight: 750;
       white-space: nowrap;
     }
 
     .bar {
-      height: 12px;
-      background: #ddd;
+      height: 10px;
+      margin-top: 6px;
+      background: #dededb;
       border-radius: 999px;
       overflow: hidden;
-      margin-top: 5px;
     }
 
     .bar > div {
@@ -272,78 +359,91 @@
     .warning,
     .error {
       border-radius: var(--radius-md);
-      padding: 18px;
-      line-height: 1.6;
+      padding: 20px 22px;
+      line-height: 1.65;
     }
 
     .callout {
-      background: var(--accent-soft);
-      border-left: 6px solid var(--accent);
+      background: var(--success-soft);
+      border-left: 4px solid var(--blue);
     }
 
     .warning {
       background: var(--warning-bg);
-      border-left: 6px solid var(--warning);
+      border-left: 4px solid var(--warning);
     }
 
     .error {
       background: var(--error-bg);
-      border-left: 6px solid var(--error);
+      border-left: 4px solid var(--error);
     }
 
     .legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 12px 18px;
+      margin-top: 18px;
     }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: .9rem;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .88rem;
     }
 
     .dot {
-      width: 14px;
-      height: 14px;
-      flex: 0 0 14px;
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
       border-radius: 50%;
     }
 
     .small {
-      font-size: .9rem;
       color: var(--muted);
+      font-size: .9rem;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 760px) {
+      .site-bar {
+        min-height: 92px;
+      }
+
       header {
-        padding: 38px 18px;
+        padding: 56px 20px 60px;
       }
 
       main {
         width: min(100% - 24px, 1180px);
-        padding-top: 20px;
+        padding-top: 24px;
       }
 
       .card {
-        padding: 20px;
-        border-radius: 18px;
+        padding: 22px;
+        border-radius: 20px;
       }
 
       .grid {
         grid-template-columns: 1fr 1fr;
       }
 
+      .metric {
+        min-height: 112px;
+      }
+
       .metric strong {
-        font-size: 1.5rem;
+        font-size: 1.45rem;
       }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 440px) {
       .grid {
         grid-template-columns: 1fr;
+      }
+
+      header h1 {
+        font-size: 2.7rem;
       }
     }
 
@@ -360,9 +460,13 @@
 </head>
 
 <body>
+<div class="site-bar">
+  <div class="site-bar__brand">RICARDO<br>CHERTA</div>
+</div>
 <header>
-  <h1>Analizador GPX de recorrido</h1>
-  <p>Resumen objetivo del perfil, pendientes, subidas, bajadas y exigencias principales de la carrera.</p>
+  <p class="eyebrow">Running Lab</p>
+  <h1>Analizador GPX</h1>
+  <p>Comprende mejor el recorrido: perfil, pendientes, ascensiones, descensos y exigencias principales de la carrera.</p>
 </header>
 
 <main>
@@ -677,88 +781,50 @@ function detectBlocks(segments, mode) {
   return blocks;
 }
 
-function routeDiagnosis(data) {
-  const mPerKm = data.gain / data.totalKm;
 
-  const longClimbs = data.climbs.filter(c => c.netVertical >= 700);
-  const mediumClimbs = data.climbs.filter(c => c.netVertical >= 300 && c.netVertical < 700);
-  const shortClimbs = data.climbs.filter(c => c.netVertical < 300);
 
-  const longDescents = data.descents.filter(d => d.netVertical >= 700);
-  const mediumDescents = data.descents.filter(d => d.netVertical >= 300 && d.netVertical < 700);
-  const shortDescents = data.descents.filter(d => d.netVertical < 300);
+function getRouteFeatures(data) {
+  const totalKm = data.totalKm;
+  const totalMeters = totalKm * 1000;
+  const mPerKm = data.gain / totalKm;
 
-  const flatKm = data.terrain["Llano / ondulado"] / 1000;
-  const flatPercent = flatKm / data.totalKm * 100;
+  const terrainKm = {};
+  const terrainPct = {};
+
+  for (const [type, meters] of Object.entries(data.terrain)) {
+    terrainKm[type] = meters / 1000;
+    terrainPct[type] = meters / totalMeters * 100;
+  }
+
+  const climbKm =
+    terrainKm["Subida suave"] +
+    terrainKm["Subida moderada"] +
+    terrainKm["Subida fuerte"] +
+    terrainKm["Subida muy fuerte"];
+
+  const descentKm =
+    terrainKm["Bajada suave"] +
+    terrainKm["Bajada moderada"] +
+    terrainKm["Bajada fuerte"] +
+    terrainKm["Bajada muy fuerte"];
+
+  const flatKm = terrainKm["Llano / ondulado"];
 
   const steepClimbKm =
-    (data.terrain["Subida fuerte"] +
-    data.terrain["Subida muy fuerte"] +
-    data.terrain["Subida moderada"]) / 1000;
+    terrainKm["Subida moderada"] +
+    terrainKm["Subida fuerte"] +
+    terrainKm["Subida muy fuerte"];
 
   const steepDescentKm =
-    (data.terrain["Bajada fuerte"] +
-    data.terrain["Bajada muy fuerte"] +
-    data.terrain["Bajada moderada"]) / 1000;
+    terrainKm["Bajada moderada"] +
+    terrainKm["Bajada fuerte"] +
+    terrainKm["Bajada muy fuerte"];
 
-  let diagnosis = "";
-
-  if (longClimbs.length >= 2 && longDescents.length >= 2) {
-    diagnosis = "Recorrido alpino o de montaña sostenida, con grandes ascensiones y grandes bajadas";
-  } else if (longClimbs.length >= 1 && longDescents.length >= 1) {
-    diagnosis = "Recorrido de montaña con una o varias ascensiones largas y descensos prolongados";
-  } else if (longClimbs.length >= 1 && shortDescents.length >= 4) {
-    diagnosis = "Recorrido dominado por grandes ascensiones, con bajadas más fragmentadas";
-  } else if (shortClimbs.length >= 8 && shortDescents.length >= 8 && longClimbs.length === 0) {
-    diagnosis = "Recorrido rompepiernas, con muchas subidas y bajadas cortas";
-  } else if (mediumClimbs.length >= 3 && mediumDescents.length >= 3) {
-    diagnosis = "Recorrido quebrado de media montaña, con repetición de subidas y bajadas medias";
-  } else if (steepClimbKm / data.totalKm > 0.25) {
-    diagnosis = "Recorrido muy condicionado por pendientes de subida moderadas, fuertes o muy fuertes";
-  } else if (steepDescentKm / data.totalKm > 0.25) {
-    diagnosis = "Recorrido muy condicionado por bajadas moderadas, fuertes o muy fuertes";
-  } else if (mPerKm >= 90) {
-    diagnosis = "Recorrido de alta densidad de desnivel";
-  } else if (flatPercent >= 55) {
-    diagnosis = "Recorrido muy corrible, con predominio de terreno llano u ondulado";
-  } else if (flatPercent >= 40) {
-    diagnosis = "Recorrido mixto con tramos corribles relevantes";
-  } else {
-    diagnosis = "Recorrido mixto con demandas combinadas";
-  }
-
-  if (data.maxEle >= 2500) {
-    diagnosis += ", con altitud máxima muy relevante";
-  } else if (data.maxEle >= 2000) {
-    diagnosis += ", con altitud máxima relevante";
-  } else if (data.maxEle >= 1500) {
-    diagnosis += ", con altitud moderada";
-  }
-
-  return diagnosis;
-}
-
-function isExceptionalLateBlock(blocks, block, totalVertical, totalKm) {
-  if (!blocks.length) return false;
-
-  const finalThirdStart = totalKm * 0.66;
-  const sorted = [...blocks].sort((a, b) => b.netVertical - a.netVertical);
-  const rank = sorted.findIndex(b => b === block) + 1;
-  const topLimit = Math.max(1, Math.ceil(sorted.length * 0.3));
-
-  return (
-    block.kmStart >= finalThirdStart &&
-    block.netVertical >= 300 &&
-    (
-      rank <= topLimit ||
-      block.netVertical >= totalVertical * 0.2
-    )
-  );
-}
-
-function raceDemands(data) {
-  const demands = [];
-  const mPerKm = data.gain / data.totalKm;
+  const climbPercent = climbKm / totalKm * 100;
+  const descentPercent = descentKm / totalKm * 100;
+  const flatPercent = flatKm / totalKm * 100;
+  const steepClimbPercent = steepClimbKm / totalKm * 100;
+  const steepDescentPercent = steepDescentKm / totalKm * 100;
 
   const longClimbs = data.climbs.filter(c => c.netVertical >= 700);
   const mediumClimbs = data.climbs.filter(c => c.netVertical >= 300 && c.netVertical < 700);
@@ -768,209 +834,677 @@ function raceDemands(data) {
   const mediumDescents = data.descents.filter(d => d.netVertical >= 300 && d.netVertical < 700);
   const shortDescents = data.descents.filter(d => d.netVertical >= 50 && d.netVertical < 300);
 
-  const climbKm =
-    (data.terrain["Subida suave"] +
-    data.terrain["Subida moderada"] +
-    data.terrain["Subida fuerte"] +
-    data.terrain["Subida muy fuerte"]) / 1000;
+  return {
+    totalKm,
+    mPerKm,
+    terrainKm,
+    terrainPct,
+    climbPercent,
+    descentPercent,
+    flatPercent,
+    steepClimbPercent,
+    steepDescentPercent,
+    longClimbs,
+    mediumClimbs,
+    shortClimbs,
+    longDescents,
+    mediumDescents,
+    shortDescents,
+    phases: analyzeRoutePhases(data),
+    runnableBlocks: detectRunnableBlocks(data.segments, totalKm)
+  };
+}
 
-  const descentKm =
-    (data.terrain["Bajada suave"] +
-    data.terrain["Bajada moderada"] +
-    data.terrain["Bajada fuerte"] +
-    data.terrain["Bajada muy fuerte"]) / 1000;
+function summarizeSegments(segments, kmStart, kmEnd) {
+  const selected = segments.filter(s => s.kmEnd > kmStart && s.kmStart < kmEnd);
 
-  const flatKm = data.terrain["Llano / ondulado"] / 1000;
+  if (!selected.length) {
+    return {
+      distance: 0,
+      gain: 0,
+      loss: 0,
+      avgSlope: 0,
+      flatPercent: 0,
+      climbPercent: 0,
+      descentPercent: 0,
+      steepPercent: 0
+    };
+  }
 
-  const verySteepClimbKm = data.terrain["Subida muy fuerte"] / 1000;
-  const verySteepDescentKm = data.terrain["Bajada muy fuerte"] / 1000;
+  let distance = 0;
+  let gain = 0;
+  let loss = 0;
+  let weightedSlope = 0;
+  let flatDistance = 0;
+  let climbDistance = 0;
+  let descentDistance = 0;
+  let steepDistance = 0;
 
-  const steepClimbKm =
-    (data.terrain["Subida moderada"] +
-    data.terrain["Subida fuerte"] +
-    data.terrain["Subida muy fuerte"]) / 1000;
+  for (const s of selected) {
+    distance += s.distance;
+    gain += Math.max(0, s.elevationDiff);
+    loss += Math.max(0, -s.elevationDiff);
+    weightedSlope += s.slope * s.distance;
 
-  const steepDescentKm =
-    (data.terrain["Bajada moderada"] +
-    data.terrain["Bajada fuerte"] +
-    data.terrain["Bajada muy fuerte"]) / 1000;
+    if (Math.abs(s.slope) <= 3) flatDistance += s.distance;
+    if (s.slope > 3) climbDistance += s.distance;
+    if (s.slope < -3) descentDistance += s.distance;
+    if (Math.abs(s.slope) >= 8) steepDistance += s.distance;
+  }
 
-  const flatPercent = flatKm / data.totalKm * 100;
-  const climbPercent = climbKm / data.totalKm * 100;
-  const descentPercent = descentKm / data.totalKm * 100;
-  const steepClimbPercent = steepClimbKm / data.totalKm * 100;
-  const steepDescentPercent = steepDescentKm / data.totalKm * 100;
-  const verySteepClimbPercent = verySteepClimbKm / data.totalKm * 100;
-  const verySteepDescentPercent = verySteepDescentKm / data.totalKm * 100;
+  return {
+    distance,
+    gain,
+    loss,
+    avgSlope: weightedSlope / Math.max(1, distance),
+    flatPercent: flatDistance / Math.max(1, distance) * 100,
+    climbPercent: climbDistance / Math.max(1, distance) * 100,
+    descentPercent: descentDistance / Math.max(1, distance) * 100,
+    steepPercent: steepDistance / Math.max(1, distance) * 100
+  };
+}
 
-  const lateImportantClimb = data.climbs.some(c =>
-    isExceptionalLateBlock(data.climbs, c, data.gain, data.totalKm)
+function analyzeRoutePhases(data) {
+  const totalKm = data.totalKm;
+  const earlyEnd = totalKm * 0.2;
+  const middleEnd = totalKm * 0.66;
+  const lateStart = totalKm * 0.66;
+  const finalStart = Math.max(
+    totalKm * 0.88,
+    totalKm - Math.min(5, Math.max(2, totalKm * 0.12))
   );
 
-  const lateImportantDescent = data.descents.some(d =>
-    isExceptionalLateBlock(data.descents, d, data.loss, data.totalKm)
+  return {
+    start: summarizeSegments(data.segments, 0, earlyEnd),
+    middle: summarizeSegments(data.segments, earlyEnd, middleEnd),
+    late: summarizeSegments(data.segments, lateStart, totalKm),
+    final: summarizeSegments(data.segments, finalStart, totalKm),
+    earlyEnd,
+    lateStart,
+    finalStart
+  };
+}
+
+function detectRunnableBlocks(segments, totalKm) {
+  const blocks = [];
+  let current = null;
+
+  const minLength = totalKm < 15 ? 0.8 : totalKm < 35 ? 1.5 : 3;
+  const maxAbsSlope = 4.5;
+  const maxSteepShare = 0.18;
+
+  function closeBlock() {
+    if (!current) return;
+
+    const distanceKm = current.distance / 1000;
+    const avgSlope = current.weightedSlope / Math.max(1, current.distance);
+    const steepShare = current.steepDistance / Math.max(1, current.distance);
+
+    if (
+      distanceKm >= minLength &&
+      Math.abs(avgSlope) <= 3.5 &&
+      steepShare <= maxSteepShare
+    ) {
+      blocks.push({
+        kmStart: current.kmStart,
+        kmEnd: current.kmEnd,
+        distanceKm,
+        avgSlope,
+        gain: current.gain,
+        loss: current.loss
+      });
+    }
+
+    current = null;
+  }
+
+  for (const segment of segments) {
+    const isRunnable =
+      Math.abs(segment.slope) <= maxAbsSlope ||
+      (Math.abs(segment.slope) <= 7 && segment.distance <= 70);
+
+    if (!isRunnable) {
+      closeBlock();
+      continue;
+    }
+
+    if (!current) {
+      current = {
+        kmStart: segment.kmStart,
+        kmEnd: segment.kmEnd,
+        distance: 0,
+        weightedSlope: 0,
+        steepDistance: 0,
+        gain: 0,
+        loss: 0
+      };
+    }
+
+    current.kmEnd = segment.kmEnd;
+    current.distance += segment.distance;
+    current.weightedSlope += segment.slope * segment.distance;
+    current.gain += Math.max(0, segment.elevationDiff);
+    current.loss += Math.max(0, -segment.elevationDiff);
+
+    if (Math.abs(segment.slope) >= 6) {
+      current.steepDistance += segment.distance;
+    }
+  }
+
+  closeBlock();
+  return blocks;
+}
+
+function blockRelativeScore(block, blocks, totalVertical, totalKm) {
+  if (!block) return 0;
+
+  const sorted = [...blocks].sort((a, b) => b.netVertical - a.netVertical);
+  const rank = sorted.findIndex(candidate => candidate === block);
+  const verticalShare = block.netVertical / Math.max(1, totalVertical);
+  const distanceShare = (block.distance / 1000) / Math.max(1, totalKm);
+
+  const rankBonus = rank === 0 ? 30 : rank === 1 ? 20 : rank === 2 ? 10 : 0;
+  const lateBonus = block.kmStart >= totalKm * 0.66 ? 18 : 0;
+  const finishBonus = block.kmEnd >= totalKm * 0.9 ? 24 : 0;
+  const verticalScore = Math.min(35, verticalShare * 140);
+  const distanceScore = Math.min(15, distanceShare * 100);
+
+  return rankBonus + lateBonus + finishBonus + verticalScore + distanceScore;
+}
+
+function findImportantLateBlock(blocks, totalVertical, totalKm) {
+  const candidates = blocks.filter(block => block.kmEnd >= totalKm * 0.66);
+
+  if (!candidates.length) return null;
+
+  return candidates
+    .map(block => ({
+      block,
+      score: blockRelativeScore(block, blocks, totalVertical, totalKm)
+    }))
+    .sort((a, b) => b.score - a.score)[0];
+}
+
+
+
+function describePhase(summary, label, totalGain, totalLoss) {
+  const parts = [];
+
+  const verticalLoad = summary.gain + summary.loss;
+  const gainShare = summary.gain / Math.max(1, totalGain);
+  const lossShare = summary.loss / Math.max(1, totalLoss);
+
+  if (summary.flatPercent >= 60) {
+    parts.push(`${label} es predominantemente corrible`);
+  } else if (summary.climbPercent >= 55) {
+    parts.push(`${label} está claramente dominado por la subida`);
+  } else if (summary.descentPercent >= 55) {
+    parts.push(`${label} está claramente dominado por la bajada`);
+  } else if (summary.steepPercent >= 45) {
+    parts.push(`${label} concentra una proporción alta de pendientes exigentes`);
+  } else {
+    parts.push(`${label} combina subida, bajada y tramos corribles`);
+  }
+
+  if (gainShare >= 0.35) {
+    parts.push("concentra una parte muy importante del desnivel positivo");
+  } else if (lossShare >= 0.35) {
+    parts.push("concentra una parte muy importante del desnivel negativo");
+  } else if (verticalLoad < 120) {
+    parts.push("presenta poca carga vertical");
+  }
+
+  return parts.join(" y ");
+}
+
+function routeDiagnosis(data) {
+  const f = getRouteFeatures(data);
+
+  const start = f.phases.start;
+  const middle = f.phases.middle;
+  const late = f.phases.late;
+  const final = f.phases.final;
+
+  const initialRunnable = f.runnableBlocks
+    .filter(block => block.kmStart <= Math.max(1, data.totalKm * 0.08))
+    .sort((a, b) => b.distanceKm - a.distanceKm)[0];
+
+  const middleRunnable = f.runnableBlocks
+    .filter(block =>
+      block.kmStart > data.totalKm * 0.18 &&
+      block.kmEnd < data.totalKm * 0.82
+    )
+    .sort((a, b) => b.distanceKm - a.distanceKm)[0];
+
+  const lateClimb = findImportantLateBlock(
+    data.climbs,
+    data.gain,
+    data.totalKm
   );
 
-  if (longClimbs.length >= 2) {
-    demands.push({
-      title: "Ascensiones largas como eje principal del recorrido",
-      text: "La carrera incluye varias subidas de gran entidad. Esto desplaza la exigencia hacia la fuerza-resistencia, la economía en subida, la capacidad de alternar carrera y marcha, y la gestión de intensidad en esfuerzos prolongados."
+  const lateDescent = findImportantLateBlock(
+    data.descents,
+    data.loss,
+    data.totalKm
+  );
+
+  const firstHalf = summarizeSegments(
+    data.segments,
+    0,
+    data.totalKm * 0.5
+  );
+
+  const secondHalf = summarizeSegments(
+    data.segments,
+    data.totalKm * 0.5,
+    data.totalKm
+  );
+
+  const firstHalfLoad = firstHalf.gain + firstHalf.loss;
+  const secondHalfLoad = secondHalf.gain + secondHalf.loss;
+
+  const sentences = [];
+
+  // Inicio
+  if (
+    initialRunnable &&
+    initialRunnable.distanceKm >= Math.max(1.5, data.totalKm * 0.12)
+  ) {
+    sentences.push(
+      `El recorrido comienza con ${initialRunnable.distanceKm.toFixed(1)} km relativamente corribles, antes de que el desnivel gane protagonismo`
+    );
+  } else if (
+    start.climbPercent >= 55 &&
+    start.gain >= Math.max(70, data.gain * 0.1)
+  ) {
+    sentences.push(
+      "La carrera entra en subida prácticamente desde la salida, sin una fase inicial clara para estabilizar el ritmo"
+    );
+  } else if (start.descentPercent >= 55) {
+    sentences.push(
+      "El recorrido comienza en descenso, lo que favorece un ritmo inicial alto antes de afrontar la parte más exigente"
+    );
+  } else {
+    sentences.push(
+      "La primera parte alterna terreno corrible y desnivel sin un único sector claramente dominante"
+    );
+  }
+
+  // Parte central
+  if (
+    middleRunnable &&
+    middleRunnable.distanceKm >= Math.max(2, data.totalKm * 0.1)
+  ) {
+    sentences.push(
+      `En la parte central aparece un bloque de ${middleRunnable.distanceKm.toFixed(1)} km donde se puede correr con continuidad`
+    );
+  } else if (
+    middle.climbPercent >= 45 &&
+    middle.gain >= data.gain * 0.3
+  ) {
+    sentences.push(
+      "La parte central concentra una proporción elevada del desnivel positivo y constituye uno de los bloques principales de esfuerzo"
+    );
+  } else if (
+    middle.descentPercent >= 45 &&
+    middle.loss >= data.loss * 0.3
+  ) {
+    sentences.push(
+      "La parte central concentra una bajada prolongada que puede generar una carga muscular importante"
+    );
+  } else if (middle.steepPercent >= 40) {
+    sentences.push(
+      "La parte central mantiene una sucesión de pendientes exigentes y deja poco margen para estabilizar el esfuerzo"
+    );
+  }
+
+  // Comparación entre mitades
+  if (secondHalfLoad >= firstHalfLoad * 1.25) {
+    sentences.push(
+      "La segunda mitad acumula claramente más carga vertical que la primera, por lo que la dificultad aumenta a medida que avanza la carrera"
+    );
+  } else if (firstHalfLoad >= secondHalfLoad * 1.25) {
+    sentences.push(
+      "La mayor parte de la carga vertical aparece en la primera mitad, mientras que el tramo posterior ofrece más posibilidades de correr"
+    );
+  } else if (
+    Math.abs(secondHalfLoad - firstHalfLoad) <=
+    Math.max(firstHalfLoad, secondHalfLoad) * 0.15
+  ) {
+    sentences.push(
+      "La carga vertical está bastante repartida entre ambas mitades, sin una única zona que concentre toda la dificultad"
+    );
+  }
+
+  // Último tercio
+  if (lateClimb && lateClimb.score >= 38) {
+    const block = lateClimb.block;
+    sentences.push(
+      `Dentro del último tercio aparece una ascensión relevante entre los km ${block.kmStart.toFixed(1)} y ${block.kmEnd.toFixed(1)}, con unos ${Math.round(block.netVertical)} m+`
+    );
+  }
+
+  if (lateDescent && lateDescent.score >= 42) {
+    const block = lateDescent.block;
+    sentences.push(
+      `El último tercio también incluye una bajada importante entre los km ${block.kmStart.toFixed(1)} y ${block.kmEnd.toFixed(1)}, cuando la fatiga ya será elevada`
+    );
+  }
+
+  // Final
+  if (
+    final.gain >= Math.max(50, data.gain * 0.05) &&
+    final.avgSlope > 1.5
+  ) {
+    sentences.push(
+      `La carrera termina en subida, con aproximadamente ${Math.round(final.gain)} m+ desde el km ${f.phases.finalStart.toFixed(1)} hasta meta`
+    );
+  } else if (
+    final.loss >= Math.max(50, data.loss * 0.05) &&
+    final.avgSlope < -1.5
+  ) {
+    sentences.push(
+      `La carrera termina en bajada, con aproximadamente ${Math.round(final.loss)} m- desde el km ${f.phases.finalStart.toFixed(1)}`
+    );
+  } else if (final.flatPercent >= 65) {
+    sentences.push(
+      "El recorrido desemboca en un final corrible, donde todavía será necesario sostener velocidad después del desnivel"
+    );
+  }
+
+  // Remove duplicated or near-identical sentences and keep a readable diagnosis.
+  const unique = sentences.filter((sentence, index, array) =>
+    array.findIndex(other => other === sentence) === index
+  );
+
+  return unique.slice(0, 6).join(". ");
+}
+
+
+function addDemand(list, demand) {
+  if (!list.some(item => item.id === demand.id)) {
+    list.push(demand);
+  }
+}
+
+function raceDemands(data) {
+  const f = getRouteFeatures(data);
+  const demands = [];
+
+  const initialRunnable = f.runnableBlocks
+    .filter(block => block.kmStart <= Math.max(1, data.totalKm * 0.08))
+    .sort((a, b) => b.distanceKm - a.distanceKm)[0];
+
+  const middleRunnable = f.runnableBlocks
+    .filter(block =>
+      block.kmStart > data.totalKm * 0.2 &&
+      block.kmEnd < data.totalKm * 0.85
+    )
+    .sort((a, b) => b.distanceKm - a.distanceKm)[0];
+
+  const lateClimb = findImportantLateBlock(data.climbs, data.gain, data.totalKm);
+  const lateDescent = findImportantLateBlock(data.descents, data.loss, data.totalKm);
+  const final = f.phases.final;
+
+  const isVeryShort = data.totalKm < 10;
+  const isShort = data.totalKm < 20;
+  const isLong = data.totalKm >= 45;
+
+  if (
+    initialRunnable &&
+    initialRunnable.distanceKm >= Math.max(1.5, data.totalKm * 0.12)
+  ) {
+    addDemand(demands, {
+      id: "initial-runnable",
+      score: 125,
+      title: "Inicio corrible con riesgo de salir demasiado rápido",
+      text: `Los primeros ${initialRunnable.distanceKm.toFixed(1)} km permiten correr con continuidad antes de entrar en la parte más montañosa. Este tipo de salida puede elevar el ritmo y el coste energético más de lo conveniente.`
     });
-  } else if (longClimbs.length === 1) {
-    demands.push({
-      title: "Una ascensión principal determinante",
-      text: "El recorrido contiene una subida larga que probablemente condicionará la carrera. Será importante gestionar el esfuerzo previo y mantener eficiencia mecánica durante un ascenso prolongado."
+  }
+
+  if (
+    f.phases.start.climbPercent >= 55 &&
+    f.phases.start.gain >= Math.max(80, data.gain * 0.12)
+  ) {
+    addDemand(demands, {
+      id: "uphill-start",
+      score: 115,
+      title: "La carrera selecciona desde la salida",
+      text: "El recorrido empieza con una proporción alta de subida. La intensidad tendrá que controlarse desde el primer momento, sin esperar a que la carrera se estabilice."
     });
-  } else if (mediumClimbs.length >= 3) {
-    demands.push({
+  }
+
+  if (lateDescent && lateDescent.score >= 42) {
+    const block = lateDescent.block;
+    addDemand(demands, {
+      id: "late-descent",
+      score: lateDescent.score + 32,
+      title: "Bajada relevante dentro del último tercio",
+      text: `El descenso entre los km ${block.kmStart.toFixed(1)} y ${block.kmEnd.toFixed(1)} aparece cuando la fatiga ya será alta. Puede generar una carga excéntrica importante y condicionar lo que venga después.`
+    });
+  }
+
+  if (lateClimb && lateClimb.score >= 38) {
+    const block = lateClimb.block;
+    addDemand(demands, {
+      id: "late-climb",
+      score: lateClimb.score + 42,
+      title: "Ascensión relevante en la parte final",
+      text: `La subida entre los km ${block.kmStart.toFixed(1)} y ${block.kmEnd.toFixed(1)} concentra unos ${Math.round(block.netVertical)} m+. Su posición dentro del último tercio aumenta mucho su importancia estratégica.`
+    });
+  }
+
+  if (
+    final.gain >= Math.max(50, data.gain * 0.05) &&
+    final.avgSlope > 1.5
+  ) {
+    addDemand(demands, {
+      id: "uphill-finish",
+      score: 150,
+      title: "Llegada en subida",
+      text: `Desde aproximadamente el km ${f.phases.finalStart.toFixed(1)} hasta meta se acumulan unos ${Math.round(final.gain)} m+. Reservar capacidad muscular y margen energético para este tramo será determinante.`
+    });
+  } else if (
+    final.loss >= Math.max(50, data.loss * 0.05) &&
+    final.avgSlope < -1.5
+  ) {
+    addDemand(demands, {
+      id: "downhill-finish",
+      score: 142,
+      title: "Llegada en bajada",
+      text: `El tramo final pierde unos ${Math.round(final.loss)} m-. La capacidad para mantener precisión técnica y velocidad bajo fatiga tendrá un peso elevado.`
+    });
+  } else if (final.flatPercent >= 65) {
+    addDemand(demands, {
+      id: "runnable-finish",
+      score: 88,
+      title: "Final corrible después del desnivel",
+      text: "La carrera termina en terreno favorable para correr. Será importante recuperar una zancada eficiente después de las subidas y bajadas anteriores."
+    });
+  }
+
+  if (
+    lateDescent &&
+    lateClimb &&
+    lateDescent.block.kmEnd <= lateClimb.block.kmStart + 1.5 &&
+    lateDescent.block.kmStart < lateClimb.block.kmStart
+  ) {
+    addDemand(demands, {
+      id: "descent-before-final-climb",
+      score: 148,
+      title: "Bajada exigente antes de la ascensión final",
+      text: "El último tercio combina una bajada relevante con una subida posterior. La fatiga muscular generada en el descenso puede reducir la capacidad para afrontar con fuerza el tramo ascendente."
+    });
+  }
+
+  if (
+    middleRunnable &&
+    middleRunnable.distanceKm >= Math.max(2, data.totalKm * 0.1)
+  ) {
+    addDemand(demands, {
+      id: "middle-runnable",
+      score: 82,
+      title: "Bloque corrible en la parte central",
+      text: `Entre los km ${middleRunnable.kmStart.toFixed(1)} y ${middleRunnable.kmEnd.toFixed(1)} aparece un tramo favorable para correr de forma continua. Puede ser una zona importante para sostener ritmo sin elevar demasiado el esfuerzo.`
+    });
+  }
+
+  if (f.longClimbs.length >= 2) {
+    addDemand(demands, {
+      id: "multiple-long-climbs",
+      score: 108,
+      title: "Varias ascensiones largas estructuran la carrera",
+      text: "El recorrido exige sostener esfuerzos prolongados de subida en más de una ocasión. La gestión debe hacerse por bloques, evitando gastar demasiado en la primera gran ascensión."
+    });
+  } else if (f.longClimbs.length === 1) {
+    addDemand(demands, {
+      id: "main-long-climb",
+      score: 100,
+      title: "Una ascensión principal concentra la dificultad",
+      text: "Una sola subida reúne una parte importante del desnivel positivo. La forma de llegar a ella y la intensidad utilizada dentro del ascenso pueden condicionar el resto de la prueba."
+    });
+  } else if (f.mediumClimbs.length >= 3) {
+    addDemand(demands, {
+      id: "repeated-medium-climbs",
+      score: 90,
       title: "Repetición de subidas medias",
-      text: "No hay una única gran ascensión dominante, sino varias subidas de entidad media. Esto exige capacidad para repetir esfuerzos de fuerza-resistencia sin perder eficiencia."
+      text: "La dificultad no está en una única ascensión, sino en encadenar varias subidas de entidad media. La pérdida progresiva de eficiencia será un factor importante."
     });
-  } else if (shortClimbs.length >= 8) {
-    demands.push({
-      title: "Perfil rompepiernas de subidas cortas",
-      text: "El recorrido acumula muchas subidas cortas. La dificultad está en absorber cambios constantes de pendiente y evitar picos de intensidad innecesarios."
-    });
-  }
-
-  if (longDescents.length >= 2) {
-    demands.push({
-      title: "Bajadas largas y alta carga excéntrica acumulada",
-      text: "Las bajadas prolongadas serán uno de los factores limitantes. Generan daño muscular y fatiga neuromuscular, especialmente en cuádriceps, sóleo, glúteo medio y estructuras estabilizadoras."
-    });
-  } else if (longDescents.length === 1) {
-    demands.push({
-      title: "Una bajada larga potencialmente decisiva",
-      text: "Una bajada prolongada puede marcar el rendimiento posterior. La clave será mantener control, cadencia y estabilidad sin superar la tolerancia muscular real."
-    });
-  } else if (mediumDescents.length >= 3) {
-    demands.push({
-      title: "Bajadas medias repetidas",
-      text: "La exigencia no viene de una sola bajada extrema, sino de la repetición de descensos medianos. Esto puede generar fatiga muscular progresiva y pérdida de precisión técnica."
-    });
-  } else if (shortDescents.length >= 8) {
-    demands.push({
-      title: "Descensos cortos y frecuentes",
-      text: "Las bajadas cortas repetidas exigen agilidad, estabilidad y transiciones rápidas entre subir, bajar y correr."
+  } else if (f.shortClimbs.length >= 6) {
+    addDemand(demands, {
+      id: "short-climbs",
+      score: 88,
+      title: "Perfil rompepiernas",
+      text: "Las subidas breves y repetidas obligan a cambiar de ritmo constantemente. El principal riesgo es convertir cada repecho en un esfuerzo demasiado intenso."
     });
   }
 
-  if (verySteepClimbPercent >= 5) {
-    demands.push({
-      title: "Presencia relevante de subidas muy fuertes",
-      text: "El recorrido incluye tramos de subida por encima del 22%. En estas zonas, caminar de forma eficiente puede ser más rentable que correr. La fuerza específica y la técnica de marcha pasan a ser determinantes."
+  if (f.longDescents.length >= 2) {
+    addDemand(demands, {
+      id: "multiple-long-descents",
+      score: 104,
+      title: "Alta carga muscular por descensos prolongados",
+      text: "Varias bajadas largas acumularán una carga excéntrica elevada. Mantener estabilidad y control será importante para no deteriorar demasiado las piernas."
+    });
+  } else if (f.longDescents.length === 1) {
+    addDemand(demands, {
+      id: "main-long-descent",
+      score: 96,
+      title: "Una bajada larga puede condicionar el tramo posterior",
+      text: "El principal descenso tiene suficiente entidad para generar fatiga muscular. Su importancia aumenta si después todavía quedan subidas o sectores corribles."
+    });
+  } else if (f.mediumDescents.length >= 3) {
+    addDemand(demands, {
+      id: "medium-descents",
+      score: 88,
+      title: "Fatiga acumulativa en bajadas medias",
+      text: "La repetición de descensos de duración media puede deteriorar progresivamente la técnica, aunque ninguna bajada sea extrema por sí sola."
     });
   }
 
-  if (verySteepDescentPercent >= 5) {
-    demands.push({
-      title: "Presencia relevante de bajadas muy fuertes",
-      text: "El recorrido incluye bajadas por debajo del -22%. Estas zonas exigen control técnico, estabilidad, fuerza excéntrica y buena capacidad para absorber impactos sin perder coordinación."
+  if (f.terrainPct["Subida muy fuerte"] >= 5) {
+    addDemand(demands, {
+      id: "very-steep-climb",
+      score: 100,
+      title: "Tramos donde caminar puede ser más eficiente",
+      text: "Una proporción relevante de la subida supera el 22%. En estas pendientes, la técnica de marcha y la fuerza específica pueden ser más importantes que intentar correr."
+    });
+  } else if (f.steepClimbPercent >= 25) {
+    addDemand(demands, {
+      id: "steep-climbing",
+      score: 84,
+      title: "Alta exigencia en pendientes de subida",
+      text: "Una parte importante del recorrido se sitúa en pendientes moderadas o fuertes. El ritmo por kilómetro pierde valor y la economía de movimiento gana protagonismo."
     });
   }
 
-  if (steepClimbPercent >= 25) {
-    demands.push({
-      title: "Alta presencia de pendientes de subida exigentes",
-      text: "Una parte importante del recorrido se sitúa en pendientes moderadas, fuertes o muy fuertes. En estas condiciones, el ritmo pierde valor y la economía de movimiento en pendiente pasa a ser determinante."
+  if (f.terrainPct["Bajada muy fuerte"] >= 5) {
+    addDemand(demands, {
+      id: "very-steep-descent",
+      score: 98,
+      title: "Bajadas muy fuertes con alta demanda de control",
+      text: "Una parte relevante de los descensos supera el -22%. La estabilidad, la absorción de impactos y la precisión técnica serán determinantes."
     });
-  } else if (climbPercent >= 40) {
-    demands.push({
-      title: "Predominio claro del terreno ascendente",
-      text: "El recorrido dedica mucho tiempo relativo a subir. La acumulación de metros positivos exige resistencia aeróbica específica y capacidad muscular para sostener trabajo concéntrico."
-    });
-  }
-
-  if (steepDescentPercent >= 25) {
-    demands.push({
-      title: "Alta presencia de bajadas agresivas",
-      text: "El porcentaje de bajada moderada, fuerte o muy fuerte es elevado. Esto aumenta la importancia de la técnica, la estabilidad, el control del impacto y la tolerancia al daño muscular."
-    });
-  } else if (descentPercent >= 40) {
-    demands.push({
-      title: "Predominio relevante del terreno descendente",
-      text: "La carrera incluye una proporción alta de bajada. Descender con eficiencia y sin destruir muscularmente las piernas puede ser tan importante como subir."
+  } else if (f.steepDescentPercent >= 25) {
+    addDemand(demands, {
+      id: "steep-descending",
+      score: 82,
+      title: "Alta carga técnica y muscular en bajada",
+      text: "La proporción de descensos moderados o fuertes es elevada. La tolerancia muscular puede limitar tanto como la capacidad aeróbica."
     });
   }
 
-  if (longClimbs.length >= 1 && longDescents.length >= 1) {
-    demands.push({
-      title: "Gestión de grandes bloques de esfuerzo",
-      text: "El perfil parece organizado en bloques largos de subida y bajada. No es exactamente un recorrido rompepiernas: exige paciencia, control de intensidad y capacidad de sostener patrones de movimiento durante mucho tiempo."
+  if (isVeryShort) {
+    addDemand(demands, {
+      id: "very-short",
+      score: 92,
+      title: "Intensidad alta durante casi toda la prueba",
+      text: "La corta duración permite sostener un esfuerzo elevado. Hay menos margen para recuperar de un error de ritmo o de una transición mal gestionada."
+    });
+  } else if (isShort) {
+    addDemand(demands, {
+      id: "short",
+      score: 84,
+      title: "Transiciones rápidas entre tipos de terreno",
+      text: "En una carrera corta, cada cambio entre llano, subida y bajada se afronta a una intensidad relativa alta. Adaptarse rápido a cada terreno puede generar diferencias."
+    });
+  } else if (isLong) {
+    addDemand(demands, {
+      id: "long",
+      score: 80,
+      title: "La gestión pesa más que un único sector",
+      text: "La distancia aumenta la importancia de mantener regularidad, alimentarse, hidratarse y controlar la intensidad. Los pequeños excesos pueden acumularse durante muchas horas."
     });
   }
 
-  if (shortClimbs.length >= 8 && shortDescents.length >= 8 && longClimbs.length === 0 && longDescents.length === 0) {
-    demands.push({
-      title: "Exigencia tipo rompepiernas",
-      text: "El recorrido cambia constantemente de pendiente. La dificultad está en la suma de pequeñas demandas, no en una subida o bajada concreta."
+  if (f.mPerKm >= 90) {
+    addDemand(demands, {
+      id: "vertical-density",
+      score: 90,
+      title: "La distancia infravalora la dificultad real",
+      text: "El ratio de desnivel positivo por kilómetro es muy elevado. La verticalidad del recorrido tendrá más peso que la distancia total."
     });
-  }
-
-  if (flatPercent >= 55) {
-    demands.push({
-      title: "Alta importancia de la economía de carrera",
-      text: "El recorrido tiene mucho terreno corrible. La capacidad de correr de forma eficiente durante mucho tiempo cobra más importancia que en perfiles puramente montañosos."
-    });
-  } else if (flatPercent >= 35) {
-    demands.push({
-      title: "Tramos corribles que pueden marcar diferencias",
-      text: "Aunque hay desnivel, el recorrido también ofrece tramos donde se puede correr. La exigencia será combinar eficiencia en llano con buena gestión del desnivel."
-    });
-  }
-
-  if (lateImportantClimb) {
-    demands.push({
-      title: "Subida importante y diferencial en el último tercio",
-      text: "El recorrido incluye una subida relevante en la parte final que destaca respecto al resto de ascensiones. Esto aumenta la importancia de la gestión previa: llegar con fatiga excesiva puede penalizar mucho más que en recorridos donde las subidas decisivas aparecen antes."
-    });
-  }
-
-  if (lateImportantDescent) {
-    demands.push({
-      title: "Bajada importante y diferencial en el último tercio",
-      text: "Una bajada relevante aparece en la parte final y destaca respecto al resto de descensos. La tolerancia excéntrica y la estabilidad bajo fatiga serán claves para no perder rendimiento en los últimos kilómetros."
+  } else if (f.mPerKm <= 30 && f.flatPercent >= 40) {
+    addDemand(demands, {
+      id: "low-density",
+      score: 74,
+      title: "La economía de carrera tendrá mucho peso",
+      text: "La carga vertical es baja respecto a la distancia. La capacidad para sostener ritmo en terreno corrible será uno de los factores principales."
     });
   }
 
   if (data.maxEle >= 2500) {
-    demands.push({
+    addDemand(demands, {
+      id: "very-high-altitude",
+      score: 90,
       title: "Altitud muy relevante",
-      text: "El recorrido alcanza altitudes superiores a 2500 m. Esto puede aumentar la exigencia cardiorrespiratoria, reducir la disponibilidad de oxígeno y hacer más importante la gestión de intensidad, especialmente si coincide con subidas largas."
+      text: "El recorrido supera los 2500 m. La menor disponibilidad de oxígeno puede aumentar claramente la percepción de esfuerzo, especialmente en las subidas."
     });
   } else if (data.maxEle >= 2000) {
-    demands.push({
-      title: "Altitud relevante",
-      text: "El recorrido supera los 2000 m de altitud. Aunque no sea necesariamente una carrera de alta montaña extrema, la altitud puede influir en la percepción de esfuerzo y en la capacidad de sostener intensidad."
-    });
-  } else if (data.maxEle >= 1500) {
-    demands.push({
-      title: "Altitud moderada",
-      text: "El recorrido alcanza altitudes moderadas. Este factor puede añadir cierta exigencia cardiorrespiratoria, especialmente si coincide con subidas largas, tramos sostenidos o alta densidad de desnivel."
+    addDemand(demands, {
+      id: "high-altitude",
+      score: 76,
+      title: "La altitud puede influir en el ritmo sostenible",
+      text: "El recorrido supera los 2000 m. Mantener intensidad en las ascensiones puede resultar más costoso de lo habitual."
     });
   }
 
-  if (mPerKm >= 90) {
-    demands.push({
-      title: "Densidad de desnivel muy alta",
-      text: "El ratio de metros positivos por kilómetro es muy elevado. La distancia total puede infravalorar la dificultad real: el desnivel, la pendiente y la distribución de ascensiones son más representativos."
-    });
-  } else if (mPerKm <= 30) {
-    demands.push({
-      title: "Baja densidad de desnivel",
-      text: "El recorrido tiene poca carga vertical relativa. La exigencia probablemente estará más relacionada con correr, sostener ritmo y mantener economía que con la fuerza-resistencia pura de montaña."
+  const selected = demands
+    .filter(demand => demand.score >= 68)
+    .sort((a, b) => b.score - a.score);
+
+  if (!selected.length) {
+    addDemand(selected, {
+      id: "sequence-management",
+      score: 50,
+      title: "Gestión del esfuerzo según la secuencia del perfil",
+      text: "La distribución de subidas, bajadas y zonas corribles exige ajustar el ritmo por sectores, en lugar de buscar una intensidad uniforme durante toda la carrera."
     });
   }
 
-  if (!demands.length) {
-    demands.push({
-      title: "Demanda mixta sin un único factor dominante",
-      text: "El recorrido combina diferentes tipos de terreno sin que uno destaque claramente. La clave será una preparación equilibrada: economía de carrera, fuerza-resistencia, tolerancia a bajadas y buena gestión del esfuerzo."
-    });
-  }
-
-  return demands;
+  return selected;
 }
+
 
 function renderProfile(profile) {
   const width = 1000;
